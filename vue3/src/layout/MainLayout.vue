@@ -1,9 +1,6 @@
 <template>
   <div class="shell">
     <header class="topbar">
-      <a href="/" class="logo">
-        <span class="logo-mono">>_</span>
-      </a>
       <div class="search-box">
         <input
           v-model="query"
@@ -94,29 +91,6 @@ onUnmounted(() => clearInterval(timer))
   padding: 0 24px;
   border-bottom: 1px solid #262626;
   flex-shrink: 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text-primary);
-  flex-shrink: 0;
-}
-
-.logo-mono {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 0.5px;
-}
-
-.logo-text {
-  font-size: 14px;
-  font-weight: 400;
-  color: #8a8a8a;
-  letter-spacing: -0.2px;
 }
 
 .search-box {
