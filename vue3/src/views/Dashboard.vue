@@ -1,47 +1,48 @@
 <template>
   <div class="dashboard">
-    <div class="stats-row">
-      <div class="stat-block">
+    <div class="hero">
+      <pre class="ascii">  ██████╗ ███████╗
+ ██╔════╝ ██╔════╝
+ ██║      ███████╗
+ ██║      ╚════██║
+ ╚██████╗ ███████║
+  ╚═════╝ ╚══════╝</pre>
+      <div class="hero-sub">电脑销售系统</div>
+      <div class="hero-desc">MySQL InnoDB · 悲观锁 · Spring Boot 4.0 · Vue 3</div>
+      <div class="hero-cmd">$ npm run dev</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num mono">{{ stats.todayOrders }}</div>
         <div class="stat-label">今日订单</div>
-        <div class="stat-value">{{ stats.todayOrders }}</div>
-        <div class="stat-unit">笔</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-label">今日销售额</div>
-        <div class="stat-value">¥{{ stats.todaySales }}</div>
+      <div class="stat">
+        <div class="stat-num mono">¥{{ stats.todaySales }}</div>
+        <div class="stat-label">销售额</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-label">客户总数</div>
-        <div class="stat-value">{{ stats.totalCustomers }}</div>
+      <div class="stat">
+        <div class="stat-num mono">{{ stats.totalCustomers }}</div>
+        <div class="stat-label">客户</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-label">商品种类</div>
-        <div class="stat-value">{{ stats.totalProducts }}</div>
+      <div class="stat">
+        <div class="stat-num mono">{{ stats.totalProducts }}</div>
+        <div class="stat-label">商品</div>
       </div>
     </div>
 
-    <div class="quick-actions">
-      <router-link to="/order-create" class="action-btn primary">新建订单</router-link>
-      <router-link to="/products" class="action-btn">浏览商品</router-link>
-      <router-link to="/customers" class="action-btn">客户信息</router-link>
-      <router-link to="/orders" class="action-btn">订单记录</router-link>
-    </div>
-
-    <div class="meta">
-      <span class="meta-item">MySQL 8.0 / computer_sales_db</span>
-      <span class="meta-sep">·</span>
-      <span class="meta-item">Spring Boot 4.0.7 + MyBatis 4.0.1</span>
-      <span class="meta-sep">·</span>
-      <span class="meta-item">Vue 3.5 + Element Plus</span>
-      <span class="meta-sep">·</span>
-      <span class="meta-item">FOR UPDATE 悲观锁</span>
+    <div class="links">
+      <router-link to="/order-create" class="link accent">新 建 订 单</router-link>
+      <router-link to="/products" class="link">商品列表</router-link>
+      <router-link to="/customers" class="link">客户信息</router-link>
+      <router-link to="/orders" class="link">订单记录</router-link>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getCustomers, getProducts, getOrders } from '../api'
+import { getCustomers, getProducts } from '../api'
 
 const stats = ref({ todayOrders: 0, todaySales: 0, totalCustomers: 0, totalProducts: 0 })
 
@@ -56,80 +57,104 @@ onMounted(async () => {
 
 <style scoped>
 .dashboard {
-  padding-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
 }
 
-.stats-row {
+.hero {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.ascii {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1.25;
+  color: #5a5a5a;
+  margin: 0 0 24px;
+  letter-spacing: 0;
+  background: linear-gradient(180deg, #a0a0a0 0%, #3a3a3a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 20px;
+  font-weight: 500;
+  color: #e0e0e0;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.hero-desc {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #5a5a5a;
+  margin-bottom: 16px;
+}
+
+.hero-cmd {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: #3a3a3a;
+}
+
+.hero-cmd::before {
+  content: '';
+}
+
+.stats {
   display: flex;
   gap: 48px;
   margin-bottom: 48px;
 }
 
-.stat-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.stat {
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -1px;
+  margin-bottom: 4px;
 }
 
 .stat-label {
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: #5a5a5a;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.stat-value {
-  font-family: var(--font-mono);
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -1px;
-}
-
-.stat-unit {
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
-
-.quick-actions {
+.links {
   display: flex;
   gap: 8px;
-  margin-bottom: 48px;
 }
 
-.action-btn {
+.link {
   font-size: 13px;
-  padding: 7px 16px;
-  border-radius: 4px;
-  color: var(--text-secondary);
+  padding: 8px 20px;
+  color: #5a5a5a;
   text-decoration: none;
-  border: 1px solid var(--border-dim);
+  border: 1px solid #262626;
   transition: all 0.15s;
 }
-.action-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+.link:hover {
+  color: #e0e0e0;
+  border-color: #444;
 }
-.action-btn.primary {
+.link.accent {
   color: var(--accent);
   border-color: var(--accent);
 }
-.action-btn.primary:hover {
-  background: var(--accent-dim);
+.link.accent:hover {
+  background: rgba(201, 169, 110, 0.1);
 }
 
-.meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.meta-item {
-  font-size: 12px;
-  color: var(--text-tertiary);
-  font-family: var(--font-mono);
-}
-.meta-sep {
-  font-size: 12px;
-  color: #333;
-}
+.mono { font-family: var(--font-mono); }
 </style>

@@ -3,7 +3,6 @@
     <header class="topbar">
       <a href="/" class="logo">
         <span class="logo-mono">>_</span>
-        <span class="logo-text">电脑销售系统</span>
       </a>
       <div class="search-box">
         <input
