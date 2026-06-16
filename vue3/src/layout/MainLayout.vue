@@ -93,29 +93,31 @@ onUnmounted(() => clearInterval(timer))
   justify-content: space-between;
   height: 48px;
   padding: 0 24px;
+  border-bottom: 1px solid var(--border-dim);
   flex-shrink: 0;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--text-primary);
   flex-shrink: 0;
 }
 
 .logo-mono {
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--accent);
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 .logo-text {
   font-size: 14px;
-  font-weight: 500;
-  letter-spacing: -0.3px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: -0.2px;
 }
 
 .search-box {
@@ -168,7 +170,7 @@ onUnmounted(() => clearInterval(timer))
 .nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   flex-shrink: 0;
 }
 
