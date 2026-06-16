@@ -27,7 +27,7 @@
 │   ├── 01_schema.sql    # 建库 + 建表
 │   ├── 02_indexes.sql   # 非聚簇索引
 │   ├── 03_procedures.sql# 存储过程 sp_create_order
-│   └── 04_test_data.sql # 测试数据（2客户 + 4商品）
+│   └── 04_test_data.sql # 测试数据（2客户 + 11商品）
 ├── .agents/skills/      # skills.sh 安装的技能（OpenCode 自动发现）
 └── AGENTS.md
 ```
@@ -55,9 +55,17 @@ mysql -u root -proot --default-character-set=utf8mb4
 
 | 层级 | 技术 |
 |------|------|
-| 前端 | Vue 3 + Axios |
+| 前端 | Vue 3 + Element Plus + Axios |
 | 后端 | Java (Spring Boot) |
 | 数据库 | MySQL 8.x (InnoDB 存储引擎) |
+
+### UI 设计约定
+
+- **暗夜主题**：纯黑背景 `#0a0a0a`，Element Plus 原生暗黑模式（`html class="dark"`）
+- **暗金强调色**：`#C9A96E`，覆盖 `--el-color-primary`
+- **等宽数字**：JetBrains Mono 用于订单号、金额、库存、时间
+- **无边框设计**：内容浮于背景，靠排版而非装饰区分层级
+- **顶栏**：48px 纯文字导航，`#262626` 底线分隔
 
 ## 数据库核心设计
 
@@ -149,6 +157,7 @@ SELECT stock FROM Product WHERE product_id = ? FOR UPDATE;
 - RESTful API 将状态码封装为 JSON 返回前端
 - 数据源管理使用 HikariCP 连接池
 - 使用 MyBatis（非 JPA），Mapper 接口 + 注解方式调用存储过程
+- ⚠️ **MySQL 陷阱**：`SELECT ... INTO` 查不到行时变量不会设为 NULL，保持原默认值。`sp_create_order` 中必须用 `ROW_COUNT() = 0` 判断商品是否存在
 
 ## 前端交互约定
 
@@ -156,6 +165,7 @@ SELECT stock FROM Product WHERE product_id = ? FOR UPDATE;
 - 使用 Axios 发送异步 POST 请求
 - 结果通过弹窗（Notification/Message）反馈
 - 下单成功后动态刷新库存列表
+- ⚠️ `sp_create_order` 只支持单商品下单，前端购物清单模式需后端适配
 
 ## 实体关系（E-R）
 
