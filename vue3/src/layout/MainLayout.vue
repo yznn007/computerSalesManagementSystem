@@ -93,7 +93,7 @@ onUnmounted(() => clearInterval(timer))
   justify-content: space-between;
   height: 48px;
   padding: 0 24px;
-  border-bottom: 1px solid var(--border-dim);
+  border-bottom: 1px solid #262626;
   flex-shrink: 0;
 }
 
@@ -116,7 +116,7 @@ onUnmounted(() => clearInterval(timer))
 .logo-text {
   font-size: 14px;
   font-weight: 400;
-  color: var(--text-secondary);
+  color: #8a8a8a;
   letter-spacing: -0.2px;
 }
 
@@ -133,17 +133,17 @@ onUnmounted(() => clearInterval(timer))
   padding: 0 28px 0 8px;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: #5a5a5a;
   font-size: 12px;
   font-family: var(--font-sans);
   outline: none;
   transition: color 0.15s;
 }
 .search-input::placeholder {
-  color: var(--text-tertiary);
+  color: #3a3a3a;
 }
 .search-input:focus {
-  color: var(--text-primary);
+  color: #e0e0e0;
 }
 
 .search-btn {
@@ -158,10 +158,9 @@ onUnmounted(() => clearInterval(timer))
   justify-content: center;
   background: none;
   border: none;
-  color: var(--text-tertiary);
+  color: #3a3a3a;
   cursor: pointer;
-  border-radius: 3px;
-  transition: all 0.15s;
+  transition: color 0.15s;
 }
 .search-btn:hover {
   color: var(--accent);
@@ -176,20 +175,22 @@ onUnmounted(() => clearInterval(timer))
 
 .nav-link {
   font-size: 13px;
+  font-weight: 400;
   padding: 4px 8px;
-  color: var(--text-secondary);
+  color: #5a5a5a;
   text-decoration: none;
   transition: color 0.15s;
 }
 .nav-link:hover {
-  color: var(--text-primary);
+  color: #e0e0e0;
 }
 .nav-link.active {
   color: var(--accent);
+  font-weight: 500;
 }
 .nav-link.dim {
   font-family: var(--font-mono);
-  color: var(--text-tertiary);
+  color: #3a3a3a;
   font-size: 12px;
   padding: 4px 8px;
   pointer-events: none;
