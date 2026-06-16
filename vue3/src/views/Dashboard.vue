@@ -7,7 +7,7 @@
  ██║      ╚════██║
  ╚██████╗ ███████║
   ╚═════╝ ╚══════╝</pre>
-      <div class="hero-sub">购机，本该如此</div>
+      <div class="hero-sub">One click, one PC</div>
     </div>
   </div>
 </template>
