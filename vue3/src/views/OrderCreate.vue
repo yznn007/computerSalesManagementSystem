@@ -2,7 +2,7 @@
   <div style="display: flex; gap: 20px; height: calc(100vh - 140px)">
     <!-- 左侧：商品列表 -->
     <div style="flex: 6; overflow-y: auto">
-      <div style="background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06)">
+      <div class="panel-dark">
         <div style="display: flex; gap: 12px; margin-bottom: 12px">
           <el-input v-model="keyword" placeholder="搜索商品名称..." :prefix-icon="Search" clearable style="flex: 1" />
           <el-select v-model="selectCategory" placeholder="分类筛选" clearable style="width: 140px" @change="fetchProducts">
@@ -33,8 +33,8 @@
     <!-- 右侧：购物清单 + 客户选择 -->
     <div style="flex: 4; display: flex; flex-direction: column; gap: 16px; min-width: 360px">
       <!-- 客户选择 -->
-      <div style="background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight: 600; margin-bottom: 8px">选择客户</div>
+      <div class="panel-dark">
+        <div style="font-weight: 600; margin-bottom: 8px; color: #e8e8e8">选择客户</div>
         <el-select v-model="selectedCustomer" placeholder="请选择客户" filterable style="width: 100%" value-key="customer_id">
           <el-option v-for="c in customers" :key="c.customer_id" :label="`${c.customer_name} - ${c.phone}`" :value="c" />
         </el-select>
@@ -180,29 +180,37 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.panel-dark {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #2a2a2a;
+}
+
 .cart-panel {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #1e1e1e;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #2a2a2a;
 }
 .cart-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #2a2a2a;
 }
 .cart-item-name {
   font-size: 13px;
   font-weight: 500;
+  color: #e8e8e8;
 }
 .cart-item-price {
   font-size: 14px;
-  color: #f56c6c;
+  color: #E6A23C;
   font-weight: bold;
   margin-top: 4px;
 }
