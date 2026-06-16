@@ -1,0 +1,14 @@
+# IDE
+.idea/
+
+# Spring Boot
+SpringBoot/target/
+SpringBoot/.mvn/wrapper/maven-wrapper.jar
+
+# Vue
+vue3/node_modules/
+vue3/dist/
+
+# OS
+.DS_Store
+Thumbs.db
