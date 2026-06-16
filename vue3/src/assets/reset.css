@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --accent: #C9A96E;
-  --accent-dim: rgba(201, 169, 110, 0.12);
-  --accent-glow: rgba(201, 169, 110, 0.06);
   --bg: #0a0a0a;
   --bg-elevated: #111111;
   --bg-hover: #161616;

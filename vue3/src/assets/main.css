@@ -1,16 +1,5 @@
 @import './reset.css';
 
-/* Element Plus 暗金主色 */
-:root,
-.dark {
-  --el-color-primary: #C9A96E;
-  --el-color-primary-light-3: #D4B87E;
-  --el-color-primary-light-5: #DFC78E;
-  --el-color-primary-light-7: #EAD69E;
-  --el-color-primary-light-9: #F5EAC0;
-  --el-color-primary-dark-2: #B8924E;
-}
-
 /* Element Plus 暗色组件覆盖 */
 .dark {
   /* 输入框 / 选择器 */

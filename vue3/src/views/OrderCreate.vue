@@ -163,7 +163,7 @@ onMounted(() => { fetchProducts(); fetchCustomers() })
 
 .submit {
   width: 100%; margin-top: 16px; padding: 10px 0;
-  background: var(--accent); border: none; color: #0a0a0a;
+  background: #e0e0e0; border: none; color: #0a0a0a;
   font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font-sans);
   transition: opacity 0.15s;
 }

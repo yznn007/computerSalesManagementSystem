@@ -136,7 +136,7 @@ onUnmounted(() => clearInterval(timer))
   transition: color 0.15s;
 }
 .search-btn:hover {
-  color: var(--accent);
+  color: #e0e0e0;
 }
 
 .nav {

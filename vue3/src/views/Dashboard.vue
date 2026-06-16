@@ -32,7 +32,7 @@
     </div>
 
     <div class="links">
-      <router-link to="/order-create" class="link accent">新 建 订 单</router-link>
+      <router-link to="/order-create" class="link primary">新 建 订 单</router-link>
       <router-link to="/products" class="link">商品列表</router-link>
       <router-link to="/customers" class="link">客户信息</router-link>
       <router-link to="/orders" class="link">订单记录</router-link>
@@ -72,10 +72,9 @@ onMounted(async () => {
   font-family: var(--font-mono);
   font-size: 18px;
   line-height: 1.25;
-  color: var(--accent);
   margin: 0 0 24px;
   letter-spacing: 0;
-  background: linear-gradient(180deg, #C9A96E 0%, #8a7040 40%, #4a3a20 100%);
+  background: linear-gradient(180deg, #a0a0a0 0%, #5a5a5a 40%, #2a2a2a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -148,12 +147,12 @@ onMounted(async () => {
   color: #e0e0e0;
   border-color: #444;
 }
-.link.accent {
-  color: var(--accent);
-  border-color: var(--accent);
+.link.primary {
+  color: #e0e0e0;
+  border-color: #444;
 }
-.link.accent:hover {
-  background: rgba(201, 169, 110, 0.1);
+.link.primary:hover {
+  background: #161616;
 }
 
 .mono { font-family: var(--font-mono); }
