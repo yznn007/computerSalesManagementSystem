@@ -12,11 +12,14 @@
           {{ cat || '全部' }}
         </button>
       </div>
+      <div v-if="searchKeyword" class="search-notice">
+        搜索 <span class="mono">{{ searchKeyword }}</span>
+      </div>
     </div>
 
     <div class="product-grid" v-loading="loading">
       <div
-        v-for="p in products"
+        v-for="p in filteredProducts"
         :key="p.product_id"
         class="product-item"
         @click="showDetail(p)"
@@ -56,15 +59,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getProducts, getProductDetail } from '../api'
 
+const route = useRoute()
+
 const activeCategory = ref('')
+const searchKeyword = ref('')
 const products = ref([])
 const loading = ref(false)
 const detailVisible = ref(false)
 const detailProduct = ref(null)
 const detailDetail = ref(null)
+
+const filteredProducts = computed(() => {
+  if (!searchKeyword.value) return products.value
+  const kw = searchKeyword.value.toLowerCase()
+  return products.value.filter(p =>
+    p.brand.toLowerCase().includes(kw) || p.model.toLowerCase().includes(kw)
+  )
+})
 
 const fetchProducts = async () => {
   loading.value = true
@@ -83,7 +98,14 @@ const showDetail = async (product) => {
   } catch { detailDetail.value = null }
 }
 
-onMounted(fetchProducts)
+watch(() => route.query.search, (val) => {
+  searchKeyword.value = val || ''
+})
+
+onMounted(() => {
+  searchKeyword.value = route.query.search || ''
+  fetchProducts()
+})
 </script>
 
 <style scoped>
@@ -105,6 +127,12 @@ onMounted(fetchProducts)
 }
 .tab:hover { color: var(--text-primary); background: var(--bg-hover); }
 .tab.active { color: var(--accent); }
+
+.search-notice {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
 
 .product-grid {
   display: grid;

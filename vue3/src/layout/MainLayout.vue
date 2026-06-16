@@ -5,6 +5,15 @@
         <span class="logo-mono">>_</span>
         <span class="logo-text">电脑销售系统</span>
       </a>
+      <div class="search-box">
+        <input
+          v-model="query"
+          class="search-input"
+          placeholder="搜索商品..."
+          @keydown.enter="search"
+        />
+        <kbd class="search-hint">↵</kbd>
+      </div>
       <nav class="nav">
         <router-link to="/order-create" class="nav-link" :class="{ active: $route.path === '/order-create' }">
           下单
@@ -34,12 +43,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
+const route = useRoute()
+const router = useRouter()
+const query = ref('')
 const time = ref('')
+
+watch(() => route.path, () => {
+  if (route.path !== '/products') {
+    query.value = ''
+  }
+})
+
+const search = () => {
+  if (query.value.trim()) {
+    router.push({ path: '/products', query: { search: query.value.trim() } })
+  }
+}
 
 let timer = null
 onMounted(() => {
+  if (route.query.search) query.value = route.query.search
   const update = () => {
     time.value = new Date().toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   }
@@ -71,6 +97,7 @@ onUnmounted(() => clearInterval(timer))
   align-items: center;
   gap: 8px;
   color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .logo-mono {
@@ -87,10 +114,49 @@ onUnmounted(() => clearInterval(timer))
   letter-spacing: -0.3px;
 }
 
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+  margin: 0 32px;
+}
+
+.search-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 32px 0 10px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input::placeholder {
+  color: var(--text-tertiary);
+}
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-hint {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
 .nav {
   display: flex;
   align-items: center;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .nav-link {
