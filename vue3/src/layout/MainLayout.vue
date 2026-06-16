@@ -12,7 +12,12 @@
           placeholder="搜索商品..."
           @keydown.enter="search"
         />
-        <kbd class="search-hint">↵</kbd>
+        <button class="search-btn" @click="search" title="搜索">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+          </svg>
+        </button>
       </div>
       <nav class="nav">
         <router-link to="/order-create" class="nav-link" :class="{ active: $route.path === '/order-create' }">
@@ -141,15 +146,25 @@ onUnmounted(() => clearInterval(timer))
   border-color: var(--accent);
 }
 
-.search-hint {
+.search-btn {
   position: absolute;
-  right: 8px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: var(--font-mono);
-  font-size: 10px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
   color: var(--text-tertiary);
-  pointer-events: none;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+.search-btn:hover {
+  color: var(--accent);
 }
 
 .nav {
