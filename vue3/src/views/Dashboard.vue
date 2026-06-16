@@ -39,7 +39,10 @@
 .hero-sub {
   font-size: 20px;
   font-weight: 500;
-  color: #e0e0e0;
   letter-spacing: 2px;
+  background: linear-gradient(180deg, #a0a0a0 0%, #5a5a5a 40%, #2a2a2a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 </style>
