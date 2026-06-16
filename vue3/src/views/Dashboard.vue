@@ -11,61 +11,19 @@
       <div class="hero-desc">MySQL InnoDB · 悲观锁 · Spring Boot 4.0 · Vue 3</div>
       <div class="hero-cmd">$ npm run dev</div>
     </div>
-
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num mono">{{ stats.todayOrders }}</div>
-        <div class="stat-label">今日订单</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num mono">¥{{ stats.todaySales }}</div>
-        <div class="stat-label">销售额</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num mono">{{ stats.totalCustomers }}</div>
-        <div class="stat-label">客户</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num mono">{{ stats.totalProducts }}</div>
-        <div class="stat-label">商品</div>
-      </div>
-    </div>
-
-    <div class="links">
-      <router-link to="/order-create" class="link primary">新 建 订 单</router-link>
-      <router-link to="/products" class="link">商品列表</router-link>
-      <router-link to="/customers" class="link">客户信息</router-link>
-      <router-link to="/orders" class="link">订单记录</router-link>
-    </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
-import { getCustomers, getProducts } from '../api'
-
-const stats = ref({ todayOrders: 0, todaySales: 0, totalCustomers: 0, totalProducts: 0 })
-
-onMounted(async () => {
-  try {
-    const [custRes, prodRes] = await Promise.all([getCustomers(), getProducts()])
-    stats.value.totalCustomers = custRes.data?.length || 0
-    stats.value.totalProducts = prodRes.data?.length || 0
-  } catch {}
-})
-</script>
 
 <style scoped>
 .dashboard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 80px;
+  padding-top: 120px;
 }
 
 .hero {
   text-align: center;
-  margin-bottom: 64px;
 }
 
 .ascii {
@@ -100,60 +58,4 @@ onMounted(async () => {
   font-size: 13px;
   color: #3a3a3a;
 }
-
-.hero-cmd::before {
-  content: '';
-}
-
-.stats {
-  display: flex;
-  gap: 48px;
-  margin-bottom: 48px;
-}
-
-.stat {
-  text-align: center;
-}
-
-.stat-num {
-  font-size: 36px;
-  font-weight: 600;
-  color: #e0e0e0;
-  letter-spacing: -1px;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: #5a5a5a;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.links {
-  display: flex;
-  gap: 8px;
-}
-
-.link {
-  font-size: 13px;
-  padding: 8px 20px;
-  color: #5a5a5a;
-  text-decoration: none;
-  border: 1px solid #262626;
-  transition: all 0.15s;
-}
-.link:hover {
-  color: #e0e0e0;
-  border-color: #444;
-}
-.link.primary {
-  color: #e0e0e0;
-  border-color: #444;
-}
-.link.primary:hover {
-  background: #161616;
-}
-
-.mono { font-family: var(--font-mono); }
 </style>
