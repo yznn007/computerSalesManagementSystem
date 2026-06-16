@@ -1,27 +1,107 @@
 @import './reset.css';
 
-/* Element Plus 暗金主色覆盖 */
-:root {
-  --el-color-primary: #C9A96E;
-  --el-color-primary-light-3: #D4B87E;
-  --el-color-primary-light-5: #DFC78E;
-  --el-color-primary-light-7: #EAD69E;
-  --el-color-primary-light-8: #F0E0B0;
-  --el-color-primary-light-9: #F5EAC0;
-  --el-color-primary-dark-2: #B8924E;
-}
-
+/* Element Plus 暗金主色 */
+:root,
 .dark {
   --el-color-primary: #C9A96E;
   --el-color-primary-light-3: #D4B87E;
   --el-color-primary-light-5: #DFC78E;
   --el-color-primary-light-7: #EAD69E;
-  --el-color-primary-light-8: #F0E0B0;
   --el-color-primary-light-9: #F5EAC0;
   --el-color-primary-dark-2: #B8924E;
 }
 
-/* 统计数字暗金色 */
-.el-statistic__number {
-  color: var(--el-color-primary) !important;
+/* Element Plus 暗色组件覆盖 */
+.dark {
+  /* 输入框 / 选择器 */
+  --el-fill-color-blank: #0a0a0a;
+  --el-input-bg-color: #0a0a0a;
+  --el-border-color: #1a1a1a;
+  --el-border-color-hover: #2a2a2a;
+
+  /* 下拉面板 */
+  --el-bg-color-overlay: #111111;
+  --el-fill-color-light: #111111;
+
+  /* 文字 */
+  --el-text-color-primary: #ffffff;
+  --el-text-color-regular: #c0c0c0;
+  --el-text-color-secondary: #7a7a7a;
+  --el-text-color-placeholder: #4a4a4a;
+
+  /* 对话框 */
+  --el-dialog-bg-color: #111111;
+  --el-mask-color: rgba(0, 0, 0, 0.8);
+
+  /* 表格 */
+  --el-table-bg-color: #0a0a0a;
+  --el-table-tr-bg-color: #0a0a0a;
+  --el-table-header-bg-color: #111111;
+  --el-table-row-hover-bg-color: #161616;
+  --el-table-border-color: #1a1a1a;
+}
+
+/* 无边框卡片 */
+.el-card {
+  background: var(--bg-elevated) !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+.el-card__header {
+  border-bottom: 1px solid var(--border-dim) !important;
+  font-weight: 600;
+}
+
+/* 表格紧凑化 */
+.el-table {
+  font-size: 13px;
+}
+.el-table th.el-table__cell {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+/* 标签简单化 */
+.el-tag {
+  border-radius: 3px !important;
+  border: none !important;
+  font-size: 11px !important;
+  padding: 0 6px !important;
+  height: 20px !important;
+  line-height: 20px !important;
+}
+
+/* 按钮 */
+.el-button {
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+/* 对话框去边框 */
+.el-dialog {
+  border: 1px solid var(--border-dim) !important;
+  border-radius: 6px !important;
+}
+.el-dialog__header {
+  border-bottom: 1px solid var(--border-dim);
+}
+
+/* 下拉菜单 */
+.el-dropdown-menu {
+  border: 1px solid var(--border-dim) !important;
+  border-radius: 6px !important;
+}
+
+/* 数字用等宽字体 */
+.el-statistic__number,
+.el-input-number {
+  font-family: var(--font-mono);
+}
+
+/* Tabs */
+.el-tabs__item {
+  font-size: 13px;
 }

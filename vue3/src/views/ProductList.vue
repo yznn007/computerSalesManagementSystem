@@ -1,55 +1,55 @@
 <template>
-  <div>
-    <h2 style="margin: 0 0 16px">商品列表</h2>
+  <div class="page">
+    <div class="page-header">
+      <div class="category-tabs">
+        <button
+          v-for="cat in ['', '笔记本', '台式机整机', 'DIY配件']"
+          :key="cat"
+          class="tab"
+          :class="{ active: activeCategory === cat }"
+          @click="activeCategory = cat; fetchProducts()"
+        >
+          {{ cat || '全部' }}
+        </button>
+      </div>
+    </div>
 
-    <el-tabs v-model="activeCategory" @tab-change="fetchProducts">
-      <el-tab-pane label="全部" name="" />
-      <el-tab-pane label="笔记本" name="笔记本" />
-      <el-tab-pane label="台式机整机" name="台式机整机" />
-      <el-tab-pane label="DIY配件" name="DIY配件" />
-    </el-tabs>
+    <div class="product-grid" v-loading="loading">
+      <div
+        v-for="p in products"
+        :key="p.product_id"
+        class="product-item"
+        @click="showDetail(p)"
+      >
+        <div class="product-item-top">
+          <span class="product-item-tag">{{ p.category }}</span>
+          <span class="product-item-stock">{{ p.stock }}</span>
+        </div>
+        <div class="product-item-name">{{ p.brand }} {{ p.model }}</div>
+        <div class="product-item-price">¥{{ p.price }}</div>
+      </div>
+    </div>
 
-    <el-row :gutter="16" v-loading="loading">
-      <el-col v-for="p in products" :key="p.product_id" :span="6" style="margin-bottom: 16px">
-        <ProductCard :product="p" @click="showDetail(p)" />
-      </el-col>
-    </el-row>
+    <div v-if="!loading && products.length === 0" class="empty">暂无商品</div>
 
-    <el-empty v-if="!loading && products.length === 0" description="暂无商品" />
-
-    <el-dialog v-model="detailVisible" :title="detailProduct?.model" width="550px">
+    <el-dialog v-model="detailVisible" :title="detailProduct?.model" width="480px">
       <template v-if="detailProduct">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="品牌">{{ detailProduct.brand }}</el-descriptions-item>
-          <el-descriptions-item label="型号">{{ detailProduct.model }}</el-descriptions-item>
-          <el-descriptions-item label="售价">￥{{ detailProduct.price }}</el-descriptions-item>
-          <el-descriptions-item label="库存">{{ detailProduct.stock }}</el-descriptions-item>
-          <el-descriptions-item label="分类">{{ detailProduct.category }}</el-descriptions-item>
-        </el-descriptions>
+        <div class="detail-table">
+          <div class="detail-row"><span>品牌</span><span>{{ detailProduct.brand }}</span></div>
+          <div class="detail-row"><span>型号</span><span>{{ detailProduct.model }}</span></div>
+          <div class="detail-row"><span>售价</span><span class="mono">¥{{ detailProduct.price }}</span></div>
+          <div class="detail-row"><span>库存</span><span class="mono">{{ detailProduct.stock }}</span></div>
+          <div class="detail-row"><span>分类</span><span>{{ detailProduct.category }}</span></div>
+        </div>
 
-        <el-divider />
-
-        <template v-if="detailDetail">
-          <!-- 笔记本详情 -->
-          <template v-if="detailDetail.screen_size !== undefined">
-            <h4>笔记本参数</h4>
-            <el-descriptions :column="2" border>
-              <el-descriptions-item label="屏幕">{{ detailDetail.screen_size }}</el-descriptions-item>
-              <el-descriptions-item label="处理器">{{ detailDetail.cpu_model }}</el-descriptions-item>
-              <el-descriptions-item label="显卡">{{ detailDetail.gpu_model }}</el-descriptions-item>
-              <el-descriptions-item label="重量">{{ detailDetail.weight }}</el-descriptions-item>
-            </el-descriptions>
-          </template>
-          <!-- 配件详情 -->
-          <template v-else-if="detailDetail.part_type !== undefined">
-            <h4>配件规格</h4>
-            <el-descriptions :column="1" border>
-              <el-descriptions-item label="配件类型">{{ detailDetail.part_type }}</el-descriptions-item>
-              <el-descriptions-item label="规格">{{ detailDetail.specification }}</el-descriptions-item>
-            </el-descriptions>
-          </template>
-        </template>
-        <p v-else style="color: #707070">该商品暂无详细参数</p>
+        <div v-if="detailDetail" class="detail-extra">
+          <div v-if="detailDetail.screen_size !== undefined" class="detail-row"><span>屏幕</span><span>{{ detailDetail.screen_size }}</span></div>
+          <div v-if="detailDetail.cpu_model" class="detail-row"><span>处理器</span><span>{{ detailDetail.cpu_model }}</span></div>
+          <div v-if="detailDetail.gpu_model" class="detail-row"><span>显卡</span><span>{{ detailDetail.gpu_model }}</span></div>
+          <div v-if="detailDetail.weight" class="detail-row"><span>重量</span><span>{{ detailDetail.weight }}</span></div>
+          <div v-if="detailDetail.part_type" class="detail-row"><span>配件类型</span><span>{{ detailDetail.part_type }}</span></div>
+          <div v-if="detailDetail.specification" class="detail-row"><span>规格</span><span>{{ detailDetail.specification }}</span></div>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -58,7 +58,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getProducts, getProductDetail } from '../api'
-import ProductCard from '../components/ProductCard.vue'
 
 const activeCategory = ref('')
 const products = ref([])
@@ -81,10 +80,92 @@ const showDetail = async (product) => {
   try {
     const res = await getProductDetail(product.product_id)
     detailDetail.value = res.data
-  } catch {
-    detailDetail.value = null
-  }
+  } catch { detailDetail.value = null }
 }
 
 onMounted(fetchProducts)
 </script>
+
+<style scoped>
+.page { padding-top: 24px; }
+
+.page-header { margin-bottom: 24px; }
+
+.category-tabs { display: flex; gap: 4px; }
+.tab {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+.tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+.tab.active { color: var(--accent); }
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.product-item {
+  padding: 16px;
+  border: 1px solid var(--border-dim);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.product-item:hover { background: var(--bg-hover); }
+.product-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.product-item-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--border-dim);
+  color: var(--text-secondary);
+}
+.product-item-stock {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.product-item-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.product-item-price {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: 64px 0;
+}
+
+.detail-extra { margin-top: 24px; }
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-dim);
+  font-size: 13px;
+}
+.detail-row span:first-child { color: var(--text-secondary); }
+.detail-row span:last-child { color: var(--text-primary); }
+.mono { font-family: var(--font-mono); }
+</style>

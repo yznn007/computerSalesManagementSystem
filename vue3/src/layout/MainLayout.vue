@@ -1,30 +1,33 @@
 <template>
-  <div class="app-shell">
-    <!-- 顶栏 -->
-    <header class="top-bar">
-      <div class="top-bar-left">
-        <el-icon :size="22" color="#C9A96E"><Monitor /></el-icon>
-        <span class="top-bar-title">电脑销售系统</span>
-      </div>
-      <nav class="top-bar-nav">
-        <router-link
-          v-for="tab in tabs"
-          :key="tab.path"
-          :to="tab.path"
-          class="nav-tab"
-          :class="{ active: isActive(tab.path) }"
-        >
-          <el-icon><component :is="tab.icon" /></el-icon>
-          <span>{{ tab.label }}</span>
+  <div class="shell">
+    <header class="topbar">
+      <a href="/" class="logo">
+        <span class="logo-mono">>_</span>
+        <span class="logo-text">电脑销售系统</span>
+      </a>
+      <nav class="nav">
+        <router-link to="/order-create" class="nav-link" :class="{ active: $route.path === '/order-create' }">
+          下单
         </router-link>
+        <router-link to="/products" class="nav-link" :class="{ active: $route.path === '/products' }">
+          商品
+        </router-link>
+        <router-link to="/orders" class="nav-link" :class="{ active: $route.path === '/orders' }">
+          订单
+        </router-link>
+        <router-link to="/customers" class="nav-link" :class="{ active: $route.path === '/customers' }">
+          客户
+        </router-link>
+        <router-link to="/dashboard" class="nav-link" :class="{ active: $route.path === '/dashboard' }">
+          仪表盘
+        </router-link>
+        <a href="#" class="nav-link dim">
+          {{ time }}
+        </a>
       </nav>
-      <div class="top-bar-right">
-        <span class="top-bar-time">{{ currentTime }}</span>
-      </div>
     </header>
 
-    <!-- 主内容 -->
-    <main class="main-content">
+    <main class="main">
       <router-view />
     </main>
   </div>
@@ -32,124 +35,92 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { Monitor } from '@element-plus/icons-vue'
 
-const route = useRoute()
-const currentTime = ref('')
-
-const tabs = [
-  { path: '/dashboard', label: '仪表盘', icon: 'Odometer' },
-  { path: '/customers', label: '客户信息', icon: 'User' },
-  { path: '/products', label: '商品列表', icon: 'Goods' },
-  { path: '/order-create', label: '下单', icon: 'Sell' },
-  { path: '/orders', label: '订单记录', icon: 'Document' },
-  { path: '/reports', label: '销售统计', icon: 'DataAnalysis' }
-]
-
-const isActive = (path) => route.path === path
+const time = ref('')
 
 let timer = null
 onMounted(() => {
-  timer = setInterval(() => {
-    currentTime.value = new Date().toLocaleString('zh-CN')
-  }, 1000)
+  const update = () => {
+    time.value = new Date().toLocaleString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  }
+  update()
+  timer = setInterval(update, 1000)
 })
 onUnmounted(() => clearInterval(timer))
 </script>
 
 <style scoped>
-.app-shell {
-  height: 100vh;
+.shell {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #141414;
 }
 
-.top-bar {
-  height: 52px;
+.topbar {
   display: flex;
   align-items: center;
-  background: #1a1a1a;
-  border-bottom: 1px solid #2a2a2a;
-  padding: 0 20px;
-  gap: 24px;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-dim);
   flex-shrink: 0;
 }
 
-.top-bar-left {
+.logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  white-space: nowrap;
+  gap: 8px;
+  color: var(--text-primary);
 }
 
-.top-bar-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #e8e8e8;
-  letter-spacing: 0.5px;
+.logo-mono {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 1px;
 }
 
-.top-bar-nav {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-  justify-content: center;
+.logo-text {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
 }
 
-.nav-tab {
+.nav {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border-radius: 6px;
+  gap: 2px;
+}
+
+.nav-link {
   font-size: 13px;
-  color: #a0a0a0;
+  padding: 4px 12px;
+  border-radius: 4px;
+  color: var(--text-secondary);
   text-decoration: none;
-  transition: all 0.2s;
-  position: relative;
+  transition: all 0.15s;
 }
-
-.nav-tab:hover {
-  color: #e8e8e8;
-  background: rgba(201, 169, 110, 0.08);
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
-
-.nav-tab.active {
-  color: #C9A96E;
-  background: rgba(201, 169, 110, 0.12);
+.nav-link.active {
+  color: var(--accent);
 }
-
-.nav-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 2px;
-  background: #C9A96E;
-  border-radius: 1px;
-}
-
-.nav-tab .el-icon {
-  font-size: 16px;
-}
-
-.top-bar-right {
-  white-space: nowrap;
-}
-
-.top-bar-time {
+.nav-link.dim {
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
   font-size: 12px;
-  color: #707070;
-  font-variant-numeric: tabular-nums;
+  padding: 4px 8px;
+  pointer-events: none;
 }
 
-.main-content {
+.main {
   flex: 1;
-  overflow: auto;
-  padding: 20px;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
 }
 </style>

@@ -1,71 +1,61 @@
 <template>
-  <div>
-    <h2 style="margin: 0 0 16px">订单记录</h2>
-
-    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap">
-      <el-select v-model="statusFilter" placeholder="订单状态" clearable style="width: 140px" @change="fetchOrders">
-        <el-option label="全部" value="" />
-        <el-option label="待付款" value="待付款" />
-        <el-option label="已付款" value="已付款" />
-        <el-option label="已发货" value="已发货" />
-        <el-option label="已取消" value="已取消" />
-      </el-select>
+  <div class="page">
+    <div class="page-header">
+      <div class="filters">
+        <button
+          v-for="s in ['', '待付款', '已付款', '已发货', '已取消']"
+          :key="s"
+          class="filter-btn"
+          :class="{ active: statusFilter === s }"
+          @click="statusFilter = s; fetchOrders()"
+        >
+          {{ s || '全部' }}
+        </button>
+      </div>
     </div>
 
-    <el-table :data="orders" border stripe v-loading="loading">
-      <el-table-column prop="order_no" label="订单号" width="200" />
-      <el-table-column prop="customer_name" label="客户" width="120" />
-      <el-table-column prop="total_amount" label="总金额" width="120">
-        <template #default="{ row }">￥{{ row.total_amount }}</template>
-      </el-table-column>
-      <el-table-column prop="order_date" label="下单时间" width="180" />
-      <el-table-column prop="status" label="状态" width="100">
+    <el-table :data="orders" v-loading="loading" size="small">
+      <el-table-column prop="order_no" label="订单号" width="200">
         <template #default="{ row }">
-          <el-tag :type="statusType(row.status)">{{ row.status }}</el-tag>
+          <span class="mono">{{ row.order_no }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column prop="customer_name" label="客户" width="80" />
+      <el-table-column label="金额" width="110">
         <template #default="{ row }">
-          <el-button size="small" @click="showDetail(row)">详情</el-button>
-          <el-dropdown v-if="row.status !== '已取消' && row.status !== '已发货'" @command="(cmd) => changeStatus(row, cmd)" style="margin-left: 8px">
-            <el-button size="small" type="primary">
-              操作 <el-icon><ArrowDown /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item v-if="row.status === '待付款'" command="已付款">标记已付款</el-dropdown-item>
-                <el-dropdown-item v-if="row.status === '已付款'" command="已发货">标记已发货</el-dropdown-item>
-                <el-dropdown-item command="已取消">取消订单</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+          <span class="mono">¥{{ row.total_amount }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="order_date" label="时间" width="160">
+        <template #default="{ row }">
+          <span class="mono dim">{{ row.order_date }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" width="80">
+        <template #default="{ row }">
+          <span class="status-dot" :class="row.status">{{ row.status }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="100">
+        <template #default="{ row }">
+          <button class="row-btn" @click="showDetail(row)">详情</button>
         </template>
       </el-table-column>
     </el-table>
 
-    <!-- 详情弹窗 -->
-    <el-dialog v-model="detailVisible" title="订单详情" width="700px">
+    <el-dialog v-model="detailVisible" title="订单详情" width="500px">
       <template v-if="detailOrder">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="订单号">{{ detailOrder.order_no }}</el-descriptions-item>
-          <el-descriptions-item label="客户">{{ detailOrder.customer_name }}</el-descriptions-item>
-          <el-descriptions-item label="总金额">￥{{ detailOrder.total_amount }}</el-descriptions-item>
-          <el-descriptions-item label="状态">
-            <el-tag :type="statusType(detailOrder.status)">{{ detailOrder.status }}</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="下单时间">{{ detailOrder.order_date }}</el-descriptions-item>
-        </el-descriptions>
-
-        <el-divider />
-        <h4>商品明细</h4>
-        <el-table :data="detailItems" border size="small">
-          <el-table-column prop="brand" label="品牌" width="100" />
-          <el-table-column prop="model" label="型号" />
-          <el-table-column prop="quantity" label="数量" width="80" />
-          <el-table-column prop="unit_price" label="单价" width="120">
-            <template #default="{ row }">￥{{ row.unit_price }}</template>
-          </el-table-column>
-        </el-table>
+        <div class="detail-table">
+          <div class="detail-row"><span>订单号</span><span class="mono">{{ detailOrder.order_no }}</span></div>
+          <div class="detail-row"><span>客户</span><span>{{ detailOrder.customer_name }}</span></div>
+          <div class="detail-row"><span>总金额</span><span class="mono">¥{{ detailOrder.total_amount }}</span></div>
+          <div class="detail-row"><span>状态</span><span>{{ detailOrder.status }}</span></div>
+          <div class="detail-row"><span>时间</span><span>{{ detailOrder.order_date }}</span></div>
+        </div>
+        <div v-if="detailItems.length" class="detail-sub" v-for="item in detailItems" :key="item.detail_id">
+          <span>{{ item.brand }} {{ item.model }}</span>
+          <span class="mono dim">×{{ item.quantity }} ¥{{ item.unit_price }}</span>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -73,9 +63,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { ArrowDown } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { getOrders, getOrderDetail, updateOrderStatus } from '../api'
+import { getOrders, getOrderDetail } from '../api'
 
 const statusFilter = ref('')
 const orders = ref([])
@@ -84,33 +72,77 @@ const detailVisible = ref(false)
 const detailOrder = ref(null)
 const detailItems = ref([])
 
-const statusType = (s) => ({ '待付款': 'warning', '已付款': 'primary', '已发货': 'success', '已取消': 'info' }[s] || '')
-
 const fetchOrders = async () => {
   loading.value = true
-  try {
-    const res = await getOrders(statusFilter.value ? { status: statusFilter.value } : undefined)
-    orders.value = res.data || []
-  } finally { loading.value = false }
+  try { orders.value = (await getOrders(statusFilter.value ? { status: statusFilter.value } : undefined)).data || [] }
+  catch {} finally { loading.value = false }
 }
 
 const showDetail = async (row) => {
   detailOrder.value = row
   detailVisible.value = true
-  try {
-    const res = await getOrderDetail(row.order_id)
-    detailItems.value = res.data?.items || []
-  } catch { detailItems.value = [] }
-}
-
-const changeStatus = async (row, status) => {
-  try {
-    await ElMessageBox.confirm(`确认将订单标记为「${status}」？`, '提示', { type: 'warning' })
-    await updateOrderStatus(row.order_id, status)
-    ElMessage.success('状态已更新')
-    fetchOrders()
-  } catch {}
+  try { detailItems.value = (await getOrderDetail(row.order_id)).data?.items || [] }
+  catch { detailItems.value = [] }
 }
 
 onMounted(fetchOrders)
 </script>
+
+<style scoped>
+.page { padding-top: 24px; }
+.page-header { margin-bottom: 16px; }
+
+.filters { display: flex; gap: 4px; }
+.filter-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+.filter-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+.filter-btn.active { color: var(--accent); }
+
+.row-btn {
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-dim);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--font-sans);
+}
+.row-btn:hover { color: var(--text-primary); border-color: #333; }
+
+.status-dot { font-size: 12px; }
+.status-dot.待付款 { color: var(--text-secondary); }
+.status-dot.已付款 { color: var(--accent); }
+.status-dot.已发货 { color: #67C23A; }
+.status-dot.已取消 { color: var(--text-tertiary); }
+
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.dim { color: var(--text-tertiary); }
+
+.detail-table { margin-bottom: 20px; }
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-dim);
+  font-size: 13px;
+}
+.detail-row span:first-child { color: var(--text-secondary); }
+.detail-row span:last-child { color: var(--text-primary); }
+
+.detail-sub {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+</style>
