@@ -93,7 +93,6 @@ onUnmounted(() => clearInterval(timer))
   justify-content: space-between;
   height: 48px;
   padding: 0 24px;
-  border-bottom: 1px solid var(--border-dim);
   flex-shrink: 0;
 }
 
@@ -129,21 +128,20 @@ onUnmounted(() => clearInterval(timer))
 .search-input {
   width: 100%;
   height: 28px;
-  padding: 0 32px 0 10px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-dim);
-  border-radius: 4px;
-  color: var(--text-primary);
+  padding: 0 28px 0 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
   font-size: 12px;
   font-family: var(--font-sans);
   outline: none;
-  transition: border-color 0.15s;
+  transition: color 0.15s;
 }
 .search-input::placeholder {
   color: var(--text-tertiary);
 }
 .search-input:focus {
-  border-color: var(--accent);
+  color: var(--text-primary);
 }
 
 .search-btn {
@@ -176,15 +174,13 @@ onUnmounted(() => clearInterval(timer))
 
 .nav-link {
   font-size: 13px;
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: 4px 8px;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: all 0.15s;
+  transition: color 0.15s;
 }
 .nav-link:hover {
   color: var(--text-primary);
-  background: var(--bg-hover);
 }
 .nav-link.active {
   color: var(--accent);
