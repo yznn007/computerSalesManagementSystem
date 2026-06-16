@@ -62,7 +62,7 @@ mysql -u root -proot --default-character-set=utf8mb4
 ### UI 设计约定
 
 - **暗夜主题**：纯黑背景 `#0a0a0a`，Element Plus 原生暗黑模式（`html class="dark"`）
-- **暗金强调色**：`#C9A96E`，覆盖 `--el-color-primary`
+- **暗金强调色**：`#C9A96E`，仅用于提交按钮、ASCII 横幅渐变、Element Plus 主色覆盖
 - **等宽数字**：JetBrains Mono 用于订单号、金额、库存、时间
 - **无边框设计**：内容浮于背景，靠排版而非装饰区分层级
 - **顶栏**：48px 纯文字导航，`#262626` 底线分隔

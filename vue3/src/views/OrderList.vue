@@ -105,7 +105,7 @@ onMounted(fetchOrders)
   transition: all 0.15s;
 }
 .filter-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
-.filter-btn.active { color: var(--accent); }
+.filter-btn.active { color: #e0e0e0; }
 
 .row-btn {
   font-size: 12px;
@@ -121,7 +121,7 @@ onMounted(fetchOrders)
 
 .status-dot { font-size: 12px; }
 .status-dot.待付款 { color: var(--text-secondary); }
-.status-dot.已付款 { color: var(--accent); }
+.status-dot.已付款 { color: #e0e0e0; }
 .status-dot.已发货 { color: #67C23A; }
 .status-dot.已取消 { color: var(--text-tertiary); }
 

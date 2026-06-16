@@ -84,15 +84,15 @@ onMounted(fetchCustomers)
 .add-btn {
   font-size: 13px;
   padding: 6px 14px;
-  border: 1px solid var(--accent);
+  border: 1px solid #333;
   background: none;
-  color: var(--accent);
+  color: #5a5a5a;
   cursor: pointer;
   border-radius: 4px;
   font-family: var(--font-sans);
   transition: all 0.15s;
 }
-.add-btn:hover { background: var(--accent-dim); }
+.add-btn:hover { background: #161616; color: #e0e0e0; }
 
 .mono { font-family: var(--font-mono); font-size: 12px; }
 </style>

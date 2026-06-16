@@ -72,10 +72,10 @@ onMounted(async () => {
   font-family: var(--font-mono);
   font-size: 18px;
   line-height: 1.25;
-  color: #5a5a5a;
+  color: var(--accent);
   margin: 0 0 24px;
   letter-spacing: 0;
-  background: linear-gradient(180deg, #a0a0a0 0%, #3a3a3a 100%);
+  background: linear-gradient(180deg, #C9A96E 0%, #8a7040 40%, #4a3a20 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -119,7 +119,7 @@ onMounted(async () => {
 .stat-num {
   font-size: 36px;
   font-weight: 600;
-  color: var(--accent);
+  color: #e0e0e0;
   letter-spacing: -1px;
   margin-bottom: 4px;
 }

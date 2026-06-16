@@ -127,7 +127,7 @@ onMounted(() => { fetchProducts(); fetchCustomers() })
 .tabs { display: flex; gap: 2px; flex-shrink: 0; }
 .tab { font-size: 12px; padding: 3px 8px; border: none; background: none; color: var(--text-secondary); cursor: pointer; font-family: var(--font-sans); transition: color 0.15s; }
 .tab:hover { color: var(--text-primary); }
-.tab.active { color: var(--accent); }
+.tab.active { color: #e0e0e0; }
 
 .row {
   display: grid; grid-template-columns: 1fr 70px 60px 100px;

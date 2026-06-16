@@ -158,8 +158,7 @@ onUnmounted(() => clearInterval(timer))
   color: #e0e0e0;
 }
 .nav-link.active {
-  color: var(--accent);
-  font-weight: 500;
+  color: #e0e0e0;
 }
 .nav-link.dim {
   font-family: var(--font-mono);

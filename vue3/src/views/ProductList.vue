@@ -82,7 +82,7 @@ onMounted(() => { searchKeyword.value = route.query.search || ''; fetchProducts(
   transition: color 0.15s;
 }
 .tab:hover { color: var(--text-primary); }
-.tab.active { color: var(--accent); }
+.tab.active { color: #e0e0e0; }
 
 .search-notice { font-size: 12px; color: var(--text-secondary); }
 
