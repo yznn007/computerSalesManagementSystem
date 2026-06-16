@@ -7,9 +7,7 @@
  ██║      ╚════██║
  ╚██████╗ ███████║
   ╚═════╝ ╚══════╝</pre>
-      <div class="hero-sub">电脑销售系统</div>
-      <div class="hero-desc">MySQL InnoDB · 悲观锁 · Spring Boot 4.0 · Vue 3</div>
-      <div class="hero-cmd">$ npm run dev</div>
+      <div class="hero-sub">购机，本该如此</div>
     </div>
   </div>
 </template>
@@ -43,19 +41,5 @@
   font-weight: 500;
   color: #e0e0e0;
   letter-spacing: 2px;
-  margin-bottom: 8px;
-}
-
-.hero-desc {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: #5a5a5a;
-  margin-bottom: 16px;
-}
-
-.hero-cmd {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: #3a3a3a;
 }
 </style>
