@@ -1,24 +1,10 @@
 # 电脑销售系统
 
-## 版本与环境
-
-| 项 | 值 |
-|------|------|
-| Spring Boot | 4.0.7 |
-| Java | 21 |
-| MyBatis | 4.0.1 |
-| Vue | 3.5.x |
-| Vite | 8.x |
-| Node.js | >=22.12.0 |
-| MySQL | 8.0.x |
-| 构建工具 | Maven Wrapper (`mvnw`) |
-| 数据库名 | `computer_sales_db` |
-
 ## 项目结构
 
 ```
 ├── SpringBoot/          # 后端 (Spring Boot + MyBatis)
-│   ├── mvnw / mvnw.cmd  # Maven Wrapper（自动下载 Maven 3.9.16）
+│   ├── mvnw / mvnw.cmd  # Maven Wrapper
 │   ├── pom.xml          # parent: spring-boot-starter-parent:4.0.7
 │   └── src/main/java/com/example/springboot/
 ├── vue3/                # 前端 (Vue 3 + Vite)
@@ -58,13 +44,6 @@ mysql -u root -proot --default-character-set=utf8mb4
 | 前端 | Vue 3 + Element Plus + Axios |
 | 后端 | Java (Spring Boot) |
 | 数据库 | MySQL 8.x (InnoDB 存储引擎) |
-
-### UI 设计约定
-
-- **暗夜主题**：纯黑背景 `#0a0a0a`，Element Plus 原生暗黑模式（`html class="dark"`）
-- **等宽数字**：JetBrains Mono 用于订单号、金额、库存、时间
-- **无边框设计**：内容浮于背景，靠排版而非装饰区分层级
-- **顶栏**：48px 纯文字导航，`#262626` 底线分隔
 
 ## 数据库核心设计
 
