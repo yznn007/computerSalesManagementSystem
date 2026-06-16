@@ -33,7 +33,7 @@
           <el-space wrap>
             <el-button type="primary" :icon="Sell" @click="$router.push('/order-create')">新建订单</el-button>
             <el-button type="success" :icon="Goods" @click="$router.push('/products')">查看商品</el-button>
-            <el-button :icon="User" @click="$router.push('/customers')">客户管理</el-button>
+            <el-button :icon="User" @click="$router.push('/customers')">客户信息</el-button>
             <el-button :icon="Document" @click="$router.push('/orders')">查看订单</el-button>
           </el-space>
         </el-card>

@@ -4,7 +4,7 @@
     <header class="top-bar">
       <div class="top-bar-left">
         <el-icon :size="22" color="#C9A96E"><Monitor /></el-icon>
-        <span class="top-bar-title">电脑销售管理系统</span>
+        <span class="top-bar-title">电脑销售系统</span>
       </div>
       <nav class="top-bar-nav">
         <router-link
@@ -40,10 +40,10 @@ const currentTime = ref('')
 
 const tabs = [
   { path: '/dashboard', label: '仪表盘', icon: 'Odometer' },
-  { path: '/customers', label: '客户管理', icon: 'User' },
-  { path: '/products', label: '商品管理', icon: 'Goods' },
+  { path: '/customers', label: '客户信息', icon: 'User' },
+  { path: '/products', label: '商品列表', icon: 'Goods' },
   { path: '/order-create', label: '下单', icon: 'Sell' },
-  { path: '/orders', label: '订单管理', icon: 'Document' },
+  { path: '/orders', label: '订单记录', icon: 'Document' },
   { path: '/reports', label: '销售统计', icon: 'DataAnalysis' }
 ]
 

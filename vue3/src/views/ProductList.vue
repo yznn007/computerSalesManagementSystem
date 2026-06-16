@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin: 0 0 16px">商品管理</h2>
+    <h2 style="margin: 0 0 16px">商品列表</h2>
 
     <el-tabs v-model="activeCategory" @tab-change="fetchProducts">
       <el-tab-pane label="全部" name="" />

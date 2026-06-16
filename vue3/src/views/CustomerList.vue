@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: space-between; margin-bottom: 16px">
-      <h2 style="margin: 0">客户管理</h2>
+      <h2 style="margin: 0">客户信息</h2>
       <el-button type="primary" :icon="Plus" @click="openDialog()">新增客户</el-button>
     </div>
 

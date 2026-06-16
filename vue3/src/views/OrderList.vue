@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin: 0 0 16px">订单管理</h2>
+    <h2 style="margin: 0 0 16px">订单记录</h2>
 
     <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap">
       <el-select v-model="statusFilter" placeholder="订单状态" clearable style="width: 140px" @change="fetchOrders">
