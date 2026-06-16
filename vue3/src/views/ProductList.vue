@@ -49,7 +49,7 @@
             </el-descriptions>
           </template>
         </template>
-        <p v-else style="color: #999">该商品暂无详细参数</p>
+        <p v-else style="color: #707070">该商品暂无详细参数</p>
       </template>
     </el-dialog>
   </div>

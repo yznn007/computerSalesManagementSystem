@@ -64,9 +64,9 @@
               </div>
             </div>
 
-            <div style="border-top: 2px solid #f0f0f0; padding-top: 12px; margin-top: auto">
-              <div style="font-size: 14px; color: #666">共 <b>{{ totalCount }}</b> 件商品</div>
-              <div style="font-size: 22px; color: #f56c6c; font-weight: bold; margin: 8px 0 16px">￥{{ totalPrice.toFixed(2) }}</div>
+            <div style="border-top: 2px solid #2a2a2a; padding-top: 12px; margin-top: auto">
+              <div style="font-size: 14px; color: #a0a0a0">共 <b>{{ totalCount }}</b> 件商品</div>
+              <div style="font-size: 22px; color: #E6A23C; font-weight: bold; margin: 8px 0 16px">￥{{ totalPrice.toFixed(2) }}</div>
               <el-button type="primary" size="large" style="width: 100%" :icon="ShoppingCartFull" :loading="submitting" :disabled="cartItems.length === 0 || !selectedCustomer" @click="submitOrder">
                 提交订单
               </el-button>

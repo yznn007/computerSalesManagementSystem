@@ -1,6 +1,6 @@
 @import './reset.css';
 
-/* Element Plus 暗色主题 + 暗金主色覆盖 */
+/* Element Plus 暗金主色覆盖 */
 :root {
   --el-color-primary: #C9A96E;
   --el-color-primary-light-3: #D4B87E;
@@ -9,94 +9,19 @@
   --el-color-primary-light-8: #F0E0B0;
   --el-color-primary-light-9: #F5EAC0;
   --el-color-primary-dark-2: #B8924E;
-
-  --el-color-success: #67C23A;
-  --el-color-warning: #E6A23C;
-  --el-color-danger: #F56C6C;
-  --el-color-info: #909399;
-
-  --el-bg-color: #141414;
-  --el-bg-color-page: #141414;
-  --el-bg-color-overlay: #1e1e1e;
-  --el-text-color-primary: #e8e8e8;
-  --el-text-color-regular: #c0c0c0;
-  --el-text-color-secondary: #a0a0a0;
-  --el-text-color-placeholder: #707070;
-  --el-text-color-disabled: #555;
-
-  --el-border-color: #333;
-  --el-border-color-light: #2a2a2a;
-  --el-border-color-lighter: #222;
-  --el-border-color-extra-light: #1a1a1a;
-  --el-border-color-dark: #444;
-
-  --el-fill-color: #1e1e1e;
-  --el-fill-color-blank: #141414;
-  --el-fill-color-light: #262626;
-  --el-fill-color-lighter: #2a2a2a;
-
-  --el-color-white: #1e1e1e;
-  --el-color-black: #e8e8e8;
 }
 
-/* 暗色卡片 */
-.el-card {
-  background-color: #1e1e1e !important;
-  border-color: #2a2a2a !important;
-  color: var(--text-primary) !important;
-  border-radius: 8px !important;
-}
-.el-card__header {
-  border-bottom-color: #2a2a2a !important;
-  color: var(--text-primary) !important;
+.dark {
+  --el-color-primary: #C9A96E;
+  --el-color-primary-light-3: #D4B87E;
+  --el-color-primary-light-5: #DFC78E;
+  --el-color-primary-light-7: #EAD69E;
+  --el-color-primary-light-8: #F0E0B0;
+  --el-color-primary-light-9: #F5EAC0;
+  --el-color-primary-dark-2: #B8924E;
 }
 
-/* 暗色表格 */
-.el-table {
-  --el-table-bg-color: #1e1e1e;
-  --el-table-tr-bg-color: #1e1e1e;
-  --el-table-header-bg-color: #262626;
-  --el-table-row-hover-bg-color: var(--gold-bg);
-  --el-table-border-color: #2a2a2a;
-  --el-table-text-color: var(--text-primary);
-  --el-table-header-text-color: var(--text-secondary);
-}
-
-/* 暗色对话框 */
-.el-dialog {
-  --el-dialog-bg-color: #1e1e1e;
-  --el-dialog-title-font-size: 16px;
-}
-.el-drawer {
-  --el-drawer-bg-color: #1e1e1e;
-}
-
-/* 暗色下拉菜单 */
-.el-dropdown-menu {
-  background-color: #1e1e1e !important;
-  border-color: #333 !important;
-}
-.el-dropdown-menu__item {
-  color: var(--text-primary) !important;
-}
-.el-dropdown-menu__item:hover {
-  background-color: var(--gold-bg) !important;
-  color: var(--gold) !important;
-}
-
-/* 暗色 Popover */
-.el-popover {
-  background: #1e1e1e !important;
-  border-color: #333 !important;
-  color: var(--text-primary) !important;
-}
-
-/* 标签优化 */
-.el-tag {
-  border-color: transparent !important;
-}
-
-/* 统计数字 */
+/* 统计数字暗金色 */
 .el-statistic__number {
-  color: var(--gold) !important;
+  color: var(--el-color-primary) !important;
 }
