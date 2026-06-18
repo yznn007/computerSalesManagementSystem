@@ -12,21 +12,14 @@
         </pre>
       </router-link>
       <nav class="nav">
-        <router-link to="/order-create" class="nav-link" :class="{ active: $route.path === '/order-create' }">
-          下单
-        </router-link>
-        <router-link to="/products" class="nav-link" :class="{ active: $route.path === '/products' }">
-          商品
-        </router-link>
-        <router-link to="/orders" class="nav-link" :class="{ active: $route.path === '/orders' }">
-          订单
-        </router-link>
-        <router-link to="/customers" class="nav-link" :class="{ active: $route.path === '/customers' }">
-          客户
-        </router-link>
-        <a href="#" class="nav-link dim">
-          {{ time }}
-        </a>
+        <router-link to="/dashboard" class="nav-link" :class="{ active: $route.path === '/dashboard' }">主页</router-link>
+        <router-link to="/order-create" class="nav-link" :class="{ active: $route.path === '/order-create' }">下单</router-link>
+        <router-link v-if="role === 'staff'" to="/products" class="nav-link" :class="{ active: $route.path === '/products' }">商品</router-link>
+        <router-link to="/orders" class="nav-link" :class="{ active: $route.path === '/orders' }">订单</router-link>
+        <router-link v-if="role === 'staff'" to="/customers" class="nav-link" :class="{ active: $route.path === '/customers' }">客户</router-link>
+        <span class="nav-user mono-dim">{{ name }}</span>
+        <a href="#" class="nav-link" @click.prevent="logout">登出</a>
+        <a href="#" class="nav-link dim">{{ time }}</a>
       </nav>
     </header>
 
@@ -37,9 +30,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const time = ref('')
+const role = computed(() => localStorage.getItem('role') || '')
+const name = computed(() => localStorage.getItem('name') || '')
 
 let timer = null
 onMounted(() => {
@@ -50,6 +47,14 @@ onMounted(() => {
   timer = setInterval(update, 1000)
 })
 onUnmounted(() => clearInterval(timer))
+
+const logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('role')
+  localStorage.removeItem('name')
+  localStorage.removeItem('uid')
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -105,6 +110,7 @@ onUnmounted(() => clearInterval(timer))
   color: #5a5a5a;
   text-decoration: none;
   transition: color 0.15s;
+  cursor: pointer;
 }
 .nav-link:hover {
   color: #e0e0e0;
@@ -119,6 +125,14 @@ onUnmounted(() => clearInterval(timer))
   padding: 4px 8px;
   pointer-events: none;
 }
+.nav-user {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #6a6a6a;
+  padding: 4px 8px;
+  margin-left: 8px;
+}
+.mono-dim { color: #6a6a6a; }
 
 .main {
   flex: 1;
