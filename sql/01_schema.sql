@@ -37,6 +37,19 @@ CREATE TABLE Laptop_Detail (
         REFERENCES Product(product_id) ON DELETE CASCADE
 ) ENGINE=InnoDB COMMENT='笔记本详情表';
 
+-- 台式机整机详情表（与 Product 一对一垂直拆分）
+CREATE TABLE Desktop_Detail (
+    desktop_id   INT AUTO_INCREMENT PRIMARY KEY COMMENT '台式机详情编号',
+    product_id   INT UNIQUE NOT NULL COMMENT '商品编号',
+    form_factor  VARCHAR(50) COMMENT '机箱类型',
+    cpu_desc     VARCHAR(100) COMMENT '处理器描述',
+    gpu_desc     VARCHAR(100) COMMENT '显卡描述',
+    ram_desc     VARCHAR(100) COMMENT '内存描述',
+    storage_desc VARCHAR(100) COMMENT '存储描述',
+    CONSTRAINT fk_desktop_product FOREIGN KEY (product_id)
+        REFERENCES Product(product_id) ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='台式机整机详情表';
+
 -- DIY配件详情表（与 Product 多对一从属）
 CREATE TABLE Spare_Part_Detail (
     part_id      INT AUTO_INCREMENT PRIMARY KEY COMMENT '配件编号',
