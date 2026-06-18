@@ -16,6 +16,8 @@
 │   └── 04_test_data.sql # 测试数据（2客户 + 11商品）
 ├── er-diagram.drawio    # E-R 图源文件（draw.io）
 ├── er-diagram.png       # E-R 图预览
+├── docs/                # 技术文档
+│   └── database-technical-document.md
 ├── .agents/skills/      # skills.sh 安装的技能（OpenCode 自动发现）
 └── AGENTS.md
 ```
@@ -195,6 +197,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
                                     Product (1) ──→ (1) Laptop_Detail
                                     Product (1) ──→ (1) Desktop_Detail
                                     Product (1) ──→ (N) Spare_Part_Detail
+                              Desktop_Detail (1) ──→ (N) Desktop_Composition (N) ←── (1) Spare_Part_Detail
 ```
 
 - Customer : Sales_Order = 1 : N
@@ -202,3 +205,4 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 - Product : Laptop_Detail = 1 : 1（笔记本通过 product_id 关联详情）
 - Product : Desktop_Detail = 1 : 1（台式机通过 product_id 关联详情）
 - Product : Spare_Part_Detail = 1 : N（一个配件商品只有一条规格）
+- Desktop_Composition : Desktop_Detail / Spare_Part_Detail = N : 1（一台台式机由多个配件组成）
