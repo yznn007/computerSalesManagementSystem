@@ -30,10 +30,9 @@ vue3/
     ├── api/index.js         # Axios 单例 + 全部 API 函数
     ├── router/index.js      # 路由表 + 全局守卫
     ├── layout/MainLayout.vue # 顶栏导航布局
-    ├── views/               # 7 个页面视图
+    ├── views/               # 6 个页面视图
     │   ├── Login.vue
-    │   ├── Dashboard.vue
-    │   ├── OrderCreate.vue
+    │   ├── Dashboard.vue      # 商品浏览 + 购物车下单
     │   ├── OrderList.vue
     │   ├── ProductList.vue
     │   ├── CustomerList.vue
@@ -112,8 +111,7 @@ server: { proxy: { '/api': { target: 'http://localhost:8080', changeOrigin: true
 |------|------|------|------|
 | `/login` | `Login.vue` | — | 公开登录页 |
 | `/` | `MainLayout.vue` | redirect `/dashboard` | 布局壳，子路由嵌套 |
-| `/dashboard` | `Dashboard.vue` | `{title:'主页'}` | 商品浏览 |
-| `/order-create` | `OrderCreate.vue` | `{title:'下单'}` | 下单 |
+| `/dashboard` | `Dashboard.vue` | `{title:'主页'}` | 商品浏览 + 购物车下单 |
 | `/products` | `ProductList.vue` | `{title:'商品', staff:true}` | 商品管理（仅 staff） |
 | `/orders` | `OrderList.vue` | `{title:'订单'}` | 订单 |
 | `/customers` | `CustomerList.vue` | `{title:'客户', staff:true}` | 客户管理（仅 staff） |
@@ -180,7 +178,9 @@ api.interceptors.response.use(
 | `register(data)` | POST `/auth/register` | 客户注册 |
 | `loginCustomer(data)` | POST `/auth/login/customer` | 客户登录 |
 | `loginStaff(data)` | POST `/auth/login/staff` | 销售员登录 |
-| `me()` | GET `/auth/me` | 当前用户 |
+| `me()` | GET `/auth/me` | 当前用户详细信息 |
+| `updateProfile(data)` | PUT `/auth/me` | 修改基本信息 |
+| `changePassword(data)` | PUT `/auth/me/password` | 修改密码 |
 | `getCustomers()` | GET `/customers` | 客户列表 |
 | `addCustomer(data)` | POST `/customers` | 新增客户 |
 | `updateCustomer(id, data)` | PUT `/customers/{id}` | 编辑客户 |
@@ -206,10 +206,11 @@ api.interceptors.response.use(
 `MainLayout.vue`：顶栏 + 主内容区。
 
 - 顶栏左侧 ASCII Logo（链接 `/dashboard`）
-- 导航项：主页、下单、商品（仅 staff 可见）、订单、客户（仅 staff 可见）
-- 右侧：当前用户名、登出按钮、实时时钟
+- 导航项：主页、订单、客户（仅 staff 可见）、商品（仅 staff 可见）
+- 右侧：当前用户名下拉菜单（设置 / 登出）
 - 导航项的 staff 显隐由 `role === 'staff'`（读 localStorage）控制，与路由守卫双重保障
 - 登出：清除 `token/role/name/uid` 后跳 `/login`
+- 用户下拉菜单中的「设置」打开 `el-dialog` 账户设置弹窗（基本信息 / 修改密码 tab 切换）
 
 主内容区 `<router-view />`，最大宽度 1280px 居中。
 
@@ -223,40 +224,38 @@ api.interceptors.response.use(
 - 登录成功写入 `localStorage`：`token`、`role`、`name`、`uid`，跳 `/dashboard`
 - 客户模式下提供注册入口（`el-dialog` 弹窗），注册字段 `customer_name/phone/address/password`
 
-### 8.2 Dashboard.vue — 商品浏览主页
+### 8.2 Dashboard.vue — 商品浏览 + 购物车下单
 
-- ASCII Logo + 搜索框 + 分类 tab（全部/笔记本/台式机整机/DIY配件）+ 子分类下拉
+- ASCII Logo + 搜索框 + 分类 tab（全部/笔记本/台式机整机/DIY配件）+ 子分类下拉 + 排序按钮（名称/价格/库存）
 - 商品列表行点击弹 `el-dialog` 显示详情（调 `getProductDetail`，按 `screen_size`/`cpu_model`/`part_type` 等字段判断分类展示）
-
-### 8.3 OrderCreate.vue — 下单
-
-- 左右双栏：左侧商品面板（搜索 + 分类 tab + 商品列表），右侧购物车
-- 销售员额外显示**客户选择**（`el-select` filterable，调 `getCustomers`）；客户角色无此栏，下单时 `customer_id` 由后端从 token 注入
-- 购物车支持数量调整（上限库存）、移除、合计
+- 每行商品右侧「+」按钮加入购物车；购物车悬浮按钮（cart-fab）显示件数
+- 购物车抽屉（`el-drawer`）：staff 额外显示客户选择（`el-select` filterable，调 `getCustomers`）；支持数量调整（上限库存）、移除、合计
 - 提交载荷 `{items:[{product_id, quantity}], customer_id?}`；成功（`res.data.status === 0`）后弹单号并刷新库存
 
-### 8.4 OrderList.vue — 订单列表
+### 8.3 OrderList.vue — 订单列表
 
 - 状态筛选 tab（全部/待付款/已付款/已发货/已取消/已退货）
 - 表格展示订单号、客户、金额、时间、状态
-- staff 可执行：详情、付款（弹窗选支付方式）、取消（弹窗填原因）、发货（确认框）、退货（确认框）
-- 客户仅可查看详情
-- 状态流转按钮按订单状态动态显隐（如"待付款"才显示付款/取消按钮）
+- **操作按角色分**：
+  - staff：取消（待付款状态）、发货（已付款状态）、退货（已发货状态）
+  - 客户：付款（弹窗选支付方式，待付款状态）、取消（弹窗填原因，待付款状态）
+- 所有角色均可查看订单详情
+- 状态流转按钮按订单状态动态显隐
 
-### 8.5 ProductList.vue — 商品管理（staff）
+### 8.4 ProductList.vue — 商品管理（staff）
 
 - 分类 tab + 新增/编辑/删除按钮（仅 staff 可见操作列）
 - 新增/编辑弹窗按分类动态渲染详情字段表单（笔记本/台式机整机/DIY配件）
 - 编辑时**分类选择框禁用**（后端不允许改分类）
 - 详情弹窗展示对应分类详情字段；台式机整机额外展示组装配置 `composition`
 
-### 8.6 CustomerList.vue — 客户管理（staff）
+### 8.5 CustomerList.vue — 客户管理（staff）
 
 - 表格展示编号、姓名、手机号、地址
 - 新增/编辑/删除，表单含 `el-form` 校验规则（姓名必填、手机号 11 位、地址必填）
 - 新增客户不传密码，后端设默认 `123456`
 
-### 8.7 SalesReport.vue — 销售报表（占位）
+### 8.6 SalesReport.vue — 销售报表（占位）
 
 占位页"功能即将上线"，**未挂载到路由**，当前不可访问。
 
