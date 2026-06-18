@@ -12,3 +12,10 @@ vue3/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# 日志
+*.log
+
+# 临时/备份文件
+*.bkp
+.$*
