@@ -27,8 +27,10 @@ INSERT INTO Laptop_Detail (product_id, screen_size, cpu_model, gpu_model, weight
 (3, '17.3英寸 2.5K 240Hz', 'AMD Ryzen 9 7945HX', 'RTX 4080', '3.0kg'),
 (4, '15.6英寸 3.5K OLED', 'Intel Ultra 9 185H', 'RTX 4060', '1.86kg');
 
--- 台式机整机详情（也存为商品记录，此处无子表，brand/model已注明配置）
--- 注：5,6 为台式机整机，配置信息在 Product.brand/model 中体现
+-- 台式机整机详情
+INSERT INTO Desktop_Detail (product_id, form_factor, cpu_desc, gpu_desc, ram_desc, storage_desc) VALUES
+(5, 'M-ATX', 'Intel i5-12400', '集成 UHD 730', '16GB DDR4', '512GB SSD'),
+(6, 'ATX', 'Intel i7-12700F', 'RTX 3060', '16GB DDR4', '1TB SSD');
 
 -- DIY配件详情
 INSERT INTO Spare_Part_Detail (product_id, part_type, specification) VALUES
