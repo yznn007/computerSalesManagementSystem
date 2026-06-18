@@ -42,6 +42,10 @@ com.example.springboot
 ├── mapper/                   # 数据访问层（4 个 MyBatis 接口）
 ├── entity/                   # 实体（与 DB 表对应，Lombok @Data）
 ├── dto/                      # 请求/响应 DTO（含 jakarta.validation 注解）
+│   ├── LoginRequest / LoginResponse / RegisterRequest
+│   ├── UpdateProfileRequest / ChangePasswordRequest
+│   ├── ProductUpsertRequest / CustomerUpsertRequest
+│   ├── OrderCreateRequest / StatusUpdateRequest
 ├── security/                 # 鉴权
 │   ├── JwtUtil.java          # JWT 生成/解析
 │   ├── JwtAuthFilter.java    # OncePerRequestFilter，解析 token 注入 AuthContext
@@ -164,7 +168,14 @@ HTTP 请求
 | POST | `/register` | — | `{customerName, phone, address, password}` | void | 客户自助注册；phone 须 11 位数字且唯一 |
 | POST | `/login/customer` | — | `{account, password}` | `{token, role, id, name}` | 手机号登录 |
 | POST | `/login/staff` | — | `{account, password}` | `{token, role, id, name}` | 用户名登录 |
-| GET | `/me` | 登录 | — | `{id, role, name}` | 当前登录用户 |
+| GET | `/me` | 登录 | — | `Customer` 或 `Staff` 完整对象 | 当前登录用户详细信息 |
+| PUT | `/me` | 登录 | `UpdateProfileRequest` | `Customer` 或 `Staff` | 修改基本信息（见下） |
+| PUT | `/me/password` | 登录 | `{oldPassword, newPassword}` | void | 修改密码；原密码错误抛 400 |
+
+`UpdateProfileRequest` 字段按角色区分：
+
+- 客户：`customerName`、`phone`（变更需查重）、`address`
+- 销售员：`staffName`、`username`（变更需查重）
 
 ### 6.2 商品 — ProductController `/api/products`
 
@@ -202,7 +213,12 @@ HTTP 请求
 | POST | `/` | 登录 | `OrderCreateRequest` | `{status:0, order_no}` | 下单（见下） |
 | GET | `/?status=` | 登录 | query `status` | `List<SalesOrder>` | staff 看全部（可按状态筛）；客户只看自己 |
 | GET | `/{id}` | 登录 | path `id` | `{order, items}` | 订单详情；客户只能查自己的订单 |
-| PUT | `/{id}/status` | staff | `StatusUpdateRequest` | void | 状态流转（付款/发货/取消/退货） |
+| PUT | `/{id}/status` | 登录 | `StatusUpdateRequest` | void | 状态流转（角色限制见下） |
+
+**订单状态流转权限（易错点）**：
+
+- **销售员**：可发货(`ship`)、取消(`cancel`)、退货(`return`)，但**不能代客户付款**（`pay` 抛 403）
+- **客户**：仅可对**自己的订单**执行付款(`pay`)和取消(`cancel`)，不能发货或退货
 
 **下单权限规则（易错点）**：
 
@@ -326,6 +342,7 @@ void callXxx(Map<String, Object> params);
 
 - **JSON 命名**：响应统一 SNAKE_CASE 下划线 key，前端按下划线取值，勿用驼峰
 - **下单 customer_id 来源**：客户下单强制取 token.id，请求体 `customerId` 被忽略；销售员代客下单才用请求体 `customerId`
+- **订单状态流转权限分角色**：staff 可 ship/cancel/return 不可 pay；客户仅可对自己订单 pay/cancel
 - **商品分类不可改**：编辑商品时改分类会抛业务异常
 - **存储过程 OUT 参数读取**：MyBatis 调用后须从原传入的 Map 中 `get` OUT 参数，`null` 兜底为系统异常状态码
 - **MySQL `SELECT ... INTO` 陷阱**：查不到行时变量不会置 NULL，存储过程内须用 `ROW_COUNT() = 0` 判断存在性（详见数据库技术文档）
