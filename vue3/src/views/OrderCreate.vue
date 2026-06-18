@@ -23,7 +23,7 @@
       </div>
 
       <div class="cart-panel">
-        <div class="cart-block">
+        <div v-if="isStaff" class="cart-block">
           <div class="cart-label">客户</div>
           <el-select v-model="selectedCustomer" placeholder="请选择客户" filterable value-key="customer_id" class="dark-select">
             <el-option v-for="c in customers" :key="c.customer_id" :label="`${c.customer_name} — ${c.phone}`" :value="c" />
@@ -49,7 +49,7 @@
               <span class="total-label">共 {{ totalCount }} 件</span>
               <span class="total-price mono">¥{{ totalPrice.toFixed(2) }}</span>
             </div>
-            <button class="submit" :disabled="!selectedCustomer || cartItems.length === 0 || submitting" @click="submitOrder">{{ submitting ? '...' : '提交订单' }}</button>
+            <button class="submit" :disabled="(isStaff && !selectedCustomer) || cartItems.length === 0 || submitting" @click="submitOrder">{{ submitting ? '...' : '提交订单' }}</button>
           </template>
         </div>
       </div>
@@ -62,6 +62,7 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getCustomers, getProducts, createOrder } from '../api'
 
+const isStaff = computed(() => localStorage.getItem('role') === 'staff')
 const keyword = ref('')
 const selectCategory = ref('')
 const products = ref([])
@@ -95,16 +96,18 @@ const addToCart = (p) => {
 const removeFromCart = (i) => cartItems.value.splice(i, 1)
 
 const submitOrder = async () => {
-  if (!selectedCustomer.value) return ElMessage.warning('请选择客户')
+  if (isStaff.value && !selectedCustomer.value) return ElMessage.warning('请选择客户')
   submitting.value = true
   try {
-    const res = await createOrder({ customer_id: selectedCustomer.value.customer_id, items: cartItems.value.map(i => ({ product_id: i.product_id, quantity: i.quantity })) })
+    const payload = { items: cartItems.value.map(i => ({ product_id: i.product_id, quantity: i.quantity })) }
+    if (isStaff.value) payload.customer_id = selectedCustomer.value.customer_id
+    const res = await createOrder(payload)
     if (res.data?.status === 0) { ElMessage.success(`下单成功 ${res.data.order_no}`); cartItems.value = []; fetchProducts() }
     else ElMessage.error('下单失败')
   } catch {} finally { submitting.value = false }
 }
 
-onMounted(() => { fetchProducts(); fetchCustomers() })
+onMounted(() => { fetchProducts(); if (isStaff.value) fetchCustomers() })
 </script>
 
 <style scoped>
