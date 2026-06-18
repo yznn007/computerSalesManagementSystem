@@ -6,15 +6,26 @@ CREATE DATABASE computer_sales_db
 
 USE computer_sales_db;
 
--- 客户表（兼任操作员/销售员，登录账户与客户一对一绑定）
+-- 客户表（含登录账号，客户可自行注册下单）
 CREATE TABLE Customer (
     customer_id   INT AUTO_INCREMENT PRIMARY KEY COMMENT '客户编号',
     customer_name VARCHAR(50)  NOT NULL COMMENT '姓名',
-    phone         VARCHAR(20)  NOT NULL UNIQUE COMMENT '手机号',
+    phone         VARCHAR(20)  NOT NULL UNIQUE COMMENT '手机号(登录账号)',
     address       VARCHAR(200) NOT NULL COMMENT '收货地址',
+    password_hash VARCHAR(255) NOT NULL COMMENT '密码哈希(BCrypt)；__SEED_*__ 种子值由后端启动时替换',
     created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
-) ENGINE=InnoDB COMMENT='客户/操作员表';
+) ENGINE=InnoDB COMMENT='客户表';
+
+-- 销售员账号表（销售员具有管理权：客户/商品/订单管理）
+CREATE TABLE Staff (
+    staff_id      INT AUTO_INCREMENT PRIMARY KEY COMMENT '销售员编号',
+    username      VARCHAR(50)  NOT NULL UNIQUE COMMENT '登录用户名',
+    password_hash VARCHAR(255) NOT NULL COMMENT '密码哈希(BCrypt)',
+    staff_name    VARCHAR(50)  NOT NULL COMMENT '销售员姓名',
+    created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) ENGINE=InnoDB COMMENT='销售员账号表';
 
 -- 商品表
 CREATE TABLE Product (

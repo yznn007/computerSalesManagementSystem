@@ -1,10 +1,14 @@
 SET NAMES utf8mb4;
 USE computer_sales_db;
 
--- 客户数据（兼任操作员/销售员）
-INSERT INTO Customer (customer_name, phone, address) VALUES
-('张三', '13800138001', '北京市海淀区中关村大街1号'),
-('李四', '13900139002', '上海市浦东新区张江高科技园区');
+-- 客户数据（密码均为 123456；__SEED_123456__ 由后端 DataInitializer 启动时替换为 BCrypt 哈希）
+INSERT INTO Customer (customer_name, phone, address, password_hash) VALUES
+('张三', '13800138001', '北京市海淀区中关村大街1号', '__SEED_123456__'),
+('李四', '13900139002', '上海市浦东新区张江高科技园区', '__SEED_123456__');
+
+-- 销售员账号（密码 admin123；__SEED_ADMIN123__ 由后端 DataInitializer 启动时替换为 BCrypt 哈希）
+INSERT INTO Staff (username, password_hash, staff_name) VALUES
+('admin', '__SEED_ADMIN123__', '系统管理员');
 
 -- 商品数据（含分类）
 INSERT INTO Product (brand, model, price, stock, category) VALUES
@@ -41,9 +45,10 @@ INSERT INTO Spare_Part_Detail (product_id, part_type, specification) VALUES
 (11, '硬盘',     'M.2 NVMe PCIe 4.0 / 读7450MB/s 写6900MB/s');
 
 -- 台式机组装配置（台式机由哪些配件组成）
+-- 注意：part_id 引用 Spare_Part_Detail.part_id（按上方插入顺序 1-5），不是 product_id
 INSERT INTO Desktop_Composition (product_id, part_id, quantity) VALUES
-(5, 7, 1),   -- 天逸510S → Ryzen 7 CPU
-(5, 9, 1),   -- 天逸510S → ROG STRIX 主板
-(5, 10, 2),  -- 天逸510S → 2条 Corsair DDR5 内存
-(6, 8, 1),   -- 暗影精灵8 → RTX 4070 显卡
-(6, 11, 1);  -- 暗影精灵8 → 990 PRO 硬盘
+(5, 1, 1),   -- 天逸510S → Ryzen 7 CPU        (part_id=1, product_id=7)
+(5, 3, 1),   -- 天逸510S → ROG STRIX 主板    (part_id=3, product_id=9)
+(5, 4, 2),   -- 天逸510S → 2条 Corsair DDR5  (part_id=4, product_id=10)
+(6, 2, 1),   -- 暗影精灵8 → RTX 4070 显卡    (part_id=2, product_id=8)
+(6, 5, 1);   -- 暗影精灵8 → 990 PRO 硬盘     (part_id=5, product_id=11)
