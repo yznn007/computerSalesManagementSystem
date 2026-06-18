@@ -80,7 +80,3 @@ cd vue3; npm run build
 - 路径别名 `@` → `vue3/src`
 - vue-router：`/login` 公开，其余路由需 token；`meta.staff: true` 的路由（商品/客户管理）仅 staff 可进（`src/router/index.js`）
 - 下单流程：选客户（staff 代选）→ 选商品 → 输数量 → 提交；结果用 ElMessage 弹窗反馈，下单成功后刷新库存
-
-## 备注
-
-- `README.md` 中 "Spring Boot 3.x" 为过期描述，实际版本以 `SpringBoot/pom.xml` 的 `4.0.7` 为准
