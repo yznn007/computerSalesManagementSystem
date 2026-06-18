@@ -119,4 +119,60 @@ sp_label: BEGIN
     SET o_order_no = v_order_no;
 END sp_label //
 
+
+-- ============================================================
+-- 搜索商品（支持关键词 + 分类筛选）
+-- ============================================================
+DROP PROCEDURE IF EXISTS sp_search_products;
+
+CREATE PROCEDURE sp_search_products(
+    IN p_keyword  VARCHAR(100),
+    IN p_category VARCHAR(20)
+)
+BEGIN
+    SELECT p.*,
+           ld.screen_size, ld.cpu_model, ld.gpu_model, ld.weight,
+           dd.form_factor, dd.cpu_desc, dd.gpu_desc, dd.ram_desc, dd.storage_desc,
+           spd.part_type, spd.specification
+    FROM Product p
+    LEFT JOIN Laptop_Detail ld      ON p.product_id = ld.product_id
+    LEFT JOIN Desktop_Detail dd     ON p.product_id = dd.product_id
+    LEFT JOIN Spare_Part_Detail spd ON p.product_id = spd.product_id
+    WHERE (p_keyword  IS NULL OR p.brand LIKE CONCAT('%', p_keyword, '%') OR p.model LIKE CONCAT('%', p_keyword, '%'))
+      AND (p_category IS NULL OR p.category = p_category)
+    ORDER BY p.product_id;
+END //
+
+
+-- ============================================================
+-- 查询客户订单列表
+-- ============================================================
+DROP PROCEDURE IF EXISTS sp_get_customer_orders;
+
+CREATE PROCEDURE sp_get_customer_orders(
+    IN p_customer_id INT
+)
+BEGIN
+    SELECT *
+    FROM Sales_Order
+    WHERE customer_id = p_customer_id
+    ORDER BY order_date DESC;
+END //
+
+
+-- ============================================================
+-- 查询订单详情（含商品信息）
+-- ============================================================
+DROP PROCEDURE IF EXISTS sp_get_order_detail;
+
+CREATE PROCEDURE sp_get_order_detail(
+    IN p_order_id INT
+)
+BEGIN
+    SELECT od.*, p.brand, p.model, p.category
+    FROM Order_Detail od
+    JOIN Product p ON od.product_id = p.product_id
+    WHERE od.order_id = p_order_id;
+END //
+
 DELIMITER ;
