@@ -60,6 +60,19 @@ CREATE TABLE Spare_Part_Detail (
         REFERENCES Product(product_id) ON DELETE CASCADE
 ) ENGINE=InnoDB COMMENT='DIY配件详情表';
 
+-- 台式机组装配置表（台式机由哪些配件组成）
+CREATE TABLE Desktop_Composition (
+    composition_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '配置编号',
+    product_id     INT NOT NULL COMMENT '台式机整机的商品编号',
+    part_id        INT NOT NULL COMMENT '配件编号',
+    quantity       INT NOT NULL DEFAULT 1 COMMENT '数量',
+    CONSTRAINT fk_composition_product FOREIGN KEY (product_id)
+        REFERENCES Product(product_id) ON DELETE CASCADE,
+    CONSTRAINT fk_composition_part FOREIGN KEY (part_id)
+        REFERENCES Spare_Part_Detail(part_id),
+    CONSTRAINT chk_composition_quantity CHECK (quantity > 0)
+) ENGINE=InnoDB COMMENT='台式机组装配置表';
+
 -- 订单主表（增加业务单号 order_no）
 CREATE TABLE Sales_Order (
     order_id     INT AUTO_INCREMENT PRIMARY KEY COMMENT '订单编号',
