@@ -26,16 +26,32 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 
 ### 3.1 Customer — 客户表
 
+客户可自行注册下单，`phone` 同时作为登录账号。
+
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | customer_id | INT | PK, AUTO_INCREMENT | 客户编号 |
 | customer_name | VARCHAR(50) | NOT NULL | 姓名 |
-| phone | VARCHAR(20) | UNIQUE, NOT NULL | 手机号 |
+| phone | VARCHAR(20) | UNIQUE, NOT NULL | 手机号（登录账号） |
 | address | VARCHAR(200) | NOT NULL | 收货地址 |
+| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；种子值 `__SEED_123456__` 由后端启动时替换 |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.2 Product — 商品表
+### 3.2 Staff — 销售员账号表
+
+销售员具备管理权限（商品/客户/订单管理）。
+
+| 字段 | 类型 | 约束 | 说明 |
+|------|------|------|------|
+| staff_id | INT | PK, AUTO_INCREMENT | 销售员编号 |
+| username | VARCHAR(50) | UNIQUE, NOT NULL | 登录用户名 |
+| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；种子值 `__SEED_ADMIN123__` 由后端启动时替换 |
+| staff_name | VARCHAR(50) | NOT NULL | 销售员姓名 |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
+| updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
+
+### 3.3 Product — 商品表
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
@@ -48,7 +64,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.3 Laptop_Detail — 笔记本详情
+### 3.4 Laptop_Detail — 笔记本详情
 
 与 Product 一对一垂直拆分。
 
@@ -63,7 +79,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.4 Desktop_Detail — 台式机整机详情
+### 3.5 Desktop_Detail — 台式机整机详情
 
 与 Product 一对一垂直拆分。
 
@@ -79,7 +95,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.5 Spare_Part_Detail — DIY 配件详情
+### 3.6 Spare_Part_Detail — DIY 配件详情
 
 与 Product 一对多从属。
 
@@ -92,7 +108,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.6 Desktop_Composition — 台式机组装配置
+### 3.7 Desktop_Composition — 台式机组装配置
 
 连接台式机与配件，记录每台台式机由哪些配件组成、各多少个。
 
@@ -105,7 +121,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.7 Sales_Order — 订单主表
+### 3.8 Sales_Order — 订单主表
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
@@ -123,7 +139,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
-### 3.8 Order_Detail — 订单明细表
+### 3.9 Order_Detail — 订单明细表
 
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
@@ -181,9 +197,7 @@ SELECT stock FROM Product WHERE product_id = ? FOR UPDATE;
 - 事务提交后释放锁
 - 整个下单流程封装在存储过程 `sp_create_order` 中
 
-日志策略：
-- `innodb_flush_log_at_trx_commit = 1`（每次提交刷盘）
-- Undo Log 保证原子性与回滚
+事务的原子性由 InnoDB 的 Undo Log 保证，异常时回滚恢复。
 
 ---
 
@@ -233,6 +247,39 @@ CALL sp_get_customer_orders(1);
 CALL sp_get_order_detail(1);
 ```
 
+### 7.5 sp_update_order_status — 订单状态流转
+
+支持付款/发货/取消/退货四种动作，`cancel` 与 `return` 会 JOIN 回补库存。
+
+```sql
+CALL sp_update_order_status(
+    1,            -- p_order_id
+    'pay',        -- p_action: 'pay' | 'ship' | 'cancel' | 'return'
+    '微信',       -- p_payment_method（仅 pay 用）
+    NULL,         -- p_cancel_reason（仅 cancel 用）
+    @status,
+    @message
+);
+```
+
+**状态码：**
+
+| 状态码 | 含义 |
+|:------:|------|
+| 0 | 成功（`o_message` 返回目标状态） |
+| 1 | 非法状态流转 / 未知操作 |
+| 2 | 订单不存在 |
+| 3 | 系统异常 |
+
+**状态流转规则：**
+
+| 当前状态 | 允许的动作 | 目标状态 |
+|----------|-----------|----------|
+| 待付款 | pay | 已付款 |
+| 待付款 | cancel | 已取消 |
+| 已付款 | ship | 已发货 |
+| 已发货 | return | 已退货 |
+
 ---
 
 ## 8. 测试数据
@@ -255,8 +302,9 @@ mysql -u root -proot --default-character-set=utf8mb4
 
 source sql/01_schema.sql    # 建库 + 建表
 source sql/02_indexes.sql   # 非聚簇索引
-source sql/03_procedures.sql # 存储过程
+source sql/03_procedures.sql # 存储过程（下单/搜索/查询）
 source sql/04_test_data.sql # 测试数据
+source sql/05_status_procedures.sql # 订单状态机（付款/发货/取消/退货）
 ```
 
 > `--default-character-set=utf8mb4` 必须指定，否则中文数据会乱码。
