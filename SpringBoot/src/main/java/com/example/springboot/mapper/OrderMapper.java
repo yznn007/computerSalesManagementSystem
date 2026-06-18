@@ -40,8 +40,8 @@ public interface OrderMapper {
             "SELECT o.*, c.customer_name FROM Sales_Order o " +
             "JOIN Customer c ON o.customer_id = c.customer_id " +
             "<where> " +
-            "  <if test='status != null and status != \"\"'>o.status = #{status}</if> " +
-            "  <if test='customerId != null'>o.customer_id = #{customerId}</if> " +
+            "  <if test='status != null and status != \"\"'>AND o.status = #{status}</if> " +
+            "  <if test='customerId != null'>AND o.customer_id = #{customerId}</if> " +
             "</where> " +
             "ORDER BY o.order_date DESC" +
             "</script>")

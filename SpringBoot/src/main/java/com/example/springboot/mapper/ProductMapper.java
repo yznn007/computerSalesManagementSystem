@@ -10,11 +10,12 @@ import java.util.Map;
 public interface ProductMapper {
 
     @Select("<script>" +
-            "SELECT * FROM Product " +
+            "SELECT p.*, spd.part_type FROM Product p " +
+            "LEFT JOIN Spare_Part_Detail spd ON p.product_id = spd.product_id " +
             "<where> " +
-            "  <if test='category != null and category != \"\"'>category = #{category}</if> " +
+            "  <if test='category != null and category != \"\"'>p.category = #{category}</if> " +
             "</where> " +
-            "ORDER BY product_id" +
+            "ORDER BY p.product_id" +
             "</script>")
     List<Product> findAll(@Param("category") String category);
 
