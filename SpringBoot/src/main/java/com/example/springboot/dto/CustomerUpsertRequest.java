@@ -15,4 +15,7 @@ public class CustomerUpsertRequest {
 
     @NotBlank(message = "收货地址不能为空")
     private String address;
+
+    // 新增客户时设置密码；留空则默认 123456。编辑时不传。
+    private String password;
 }

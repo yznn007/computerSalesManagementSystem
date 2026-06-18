@@ -10,6 +10,9 @@ public interface StaffMapper {
     @Select("SELECT * FROM Staff ORDER BY staff_id")
     List<Staff> findAll();
 
+    @Select("SELECT * FROM Staff WHERE staff_id = #{id}")
+    Staff findById(@Param("id") Integer id);
+
     @Select("SELECT * FROM Staff WHERE username = #{username}")
     Staff findByUsername(@Param("username") String username);
 
@@ -28,4 +31,7 @@ public interface StaffMapper {
 
     @Update("UPDATE Staff SET password_hash = #{hash} WHERE password_hash = #{seed}")
     int replaceSeedPasswords(@Param("seed") String seed, @Param("hash") String hash);
+
+    @Update("UPDATE Staff SET password_hash = #{hash} WHERE staff_id = #{id}")
+    int updatePasswordHashById(@Param("id") Integer id, @Param("hash") String hash);
 }

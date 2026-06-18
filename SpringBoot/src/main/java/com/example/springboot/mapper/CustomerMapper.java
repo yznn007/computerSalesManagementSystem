@@ -36,4 +36,7 @@ public interface CustomerMapper {
 
     @Update("UPDATE Customer SET password_hash = #{hash} WHERE phone = #{phone}")
     int updatePasswordHashByPhone(@Param("phone") String phone, @Param("hash") String hash);
+
+    @Update("UPDATE Customer SET password_hash = #{hash} WHERE customer_id = #{id}")
+    int updatePasswordHashById(@Param("id") Integer id, @Param("hash") String hash);
 }
