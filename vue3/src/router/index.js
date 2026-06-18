@@ -8,7 +8,6 @@ const routes = [
     redirect: '/dashboard',
     children: [
       { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue'), meta: { title: '主页' } },
-      { path: 'order-create', name: 'OrderCreate', component: () => import('../views/OrderCreate.vue'), meta: { title: '下单' } },
       { path: 'products', name: 'ProductList', component: () => import('../views/ProductList.vue'), meta: { title: '商品', staff: true } },
       { path: 'orders', name: 'OrderList', component: () => import('../views/OrderList.vue'), meta: { title: '订单' } },
       { path: 'customers', name: 'CustomerList', component: () => import('../views/CustomerList.vue'), meta: { title: '客户', staff: true } },

@@ -4,28 +4,35 @@
       <button class="add-btn" @click="openDialog()">+ 新增客户</button>
     </div>
 
-    <el-table :data="customers" v-loading="loading" size="small">
-      <el-table-column prop="customer_id" label="编号" width="60">
-        <template #default="{ row }"><span class="mono">{{ row.customer_id }}</span></template>
-      </el-table-column>
-      <el-table-column prop="customer_name" label="姓名" width="100" />
-      <el-table-column prop="phone" label="手机号" width="140">
-        <template #default="{ row }"><span class="mono">{{ row.phone }}</span></template>
-      </el-table-column>
-      <el-table-column prop="address" label="收货地址" min-width="200" />
-      <el-table-column label="操作" width="140">
-        <template #default="{ row }">
+
+    <div class="table-head">
+      <span class="th">姓名</span>
+      <span class="th">手机号</span>
+      <span class="th">收货地址</span>
+      <span class="th th-ops">操作</span>
+    </div>
+
+    <div v-loading="loading">
+      <div v-for="row in customers" :key="row.customer_id" class="row">
+        <span class="cell">{{ row.customer_name }}</span>
+        <span class="mono">{{ row.phone }}</span>
+        <span class="cell addr">{{ row.address }}</span>
+        <span class="row-ops">
           <button class="row-btn" @click="openDialog(row)">编辑</button>
           <button class="row-btn warn" @click="remove(row)">删除</button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </span>
+      </div>
+      <div v-if="!loading && customers.length === 0" class="empty">暂无客户</div>
+    </div>
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑客户' : '新增客户'" width="420px" @close="resetForm">
-      <el-form :model="form" :rules="rules" ref="formRef" label-width="72px">
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="84px">
         <el-form-item label="姓名" prop="customer_name"><el-input v-model="form.customer_name" placeholder="请输入姓名" /></el-form-item>
         <el-form-item label="手机号" prop="phone"><el-input v-model="form.phone" placeholder="11位手机号" maxlength="11" /></el-form-item>
         <el-form-item label="收货地址" prop="address"><el-input v-model="form.address" placeholder="请输入收货地址" /></el-form-item>
+        <el-form-item v-if="!editing" label="密码" prop="password">
+          <el-input v-model="form.password" type="password" show-password placeholder="默认 123456" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false" size="small">取消</el-button>
@@ -47,7 +54,7 @@ const submitting = ref(false)
 const formRef = ref(null)
 const editing = ref(null)
 
-const form = ref({ customer_name: '', phone: '', address: '' })
+const form = ref({ customer_name: '', phone: '', address: '', password: '' })
 const rules = {
   customer_name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [{ required: true, pattern: /^\d{11}$/, message: '11位手机号', trigger: 'blur' }],
@@ -61,7 +68,7 @@ const fetchCustomers = async () => {
 
 const openDialog = (row) => {
   editing.value = row ? row.customer_id : null
-  form.value = row ? { customer_name: row.customer_name, phone: row.phone, address: row.address } : { customer_name: '', phone: '', address: '' }
+  form.value = row ? { customer_name: row.customer_name, phone: row.phone, address: row.address }     : { customer_name: '', phone: '', address: '', password: '' }
   dialogVisible.value = true
 }
 
@@ -88,11 +95,24 @@ onMounted(fetchCustomers)
 
 <style scoped>
 .page { padding-top: 24px; }
-.page-header { margin-bottom: 16px; }
-.add-btn { font-size: 13px; padding: 6px 14px; border: 1px solid #333; background: none; color: #5a5a5a; cursor: pointer; border-radius: 4px; font-family: var(--font-sans); transition: all 0.15s; }
-.add-btn:hover { background: #161616; color: #e0e0e0; }
-.row-btn { font-size: 12px; padding: 2px 8px; border: 1px solid var(--border-dim); background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); margin-right: 4px; }
-.row-btn:hover { color: var(--text-primary); border-color: #333; }
-.row-btn.warn { color: #f56c6c; border-color: #f56c6c66; }
-.mono { font-family: var(--font-mono); font-size: 12px; }
+.page-header { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+.add-btn { font-size: 13px; padding: 6px 14px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; border-radius: 4px; font-family: var(--font-sans); transition: color 0.15s; }
+.add-btn:hover { color: #e0e0e0; }
+
+.table-head { display: grid; grid-template-columns: 100px 140px 1fr 140px; align-items: center; padding: 8px 8px; border-bottom: 1px solid #1a1a1a; }
+.th { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.th-ops { text-align: right; }
+
+.row { display: grid; grid-template-columns: 100px 140px 1fr 140px; align-items: center; padding: 12px 8px; transition: background 0.1s; border-bottom: 1px solid #1a1a1a; }
+.row:hover { background: var(--bg-hover); }
+.cell { font-size: 13px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.addr { color: var(--text-secondary); }
+.row-ops { display: flex; gap: 4px; justify-content: flex-end; }
+
+.row-btn { font-size: 12px; padding: 2px 8px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); transition: color 0.15s; }
+.row-btn:hover { color: var(--text-primary); }
+.row-btn.warn { color: #f56c6c; }
+
+.mono { font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); }
+.empty { text-align: center; color: var(--text-tertiary); padding: 80px 0; font-size: 13px; }
 </style>

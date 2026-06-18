@@ -2,15 +2,31 @@
   <div class="page">
     <div class="page-header">
       <div class="category-tabs">
-        <button v-for="cat in cats" :key="cat" class="tab" :class="{ active: activeCategory === cat }" @click="activeCategory = cat; fetchProducts()">{{ cat || '全部' }}</button>
+        <button v-for="cat in cats" :key="cat" class="tab" :class="{ active: activeCategory === cat }" @click="selectCategory(cat)">{{ cat || '全部' }}</button>
+      </div>
+      <div class="sort-btns">
+        <button v-for="f in sortFields" :key="f.key" class="sort-btn" :class="{ active: sortField === f.key }" @click="toggleSort(f.key)">
+          {{ f.label }}<span v-if="sortField === f.key" class="sort-arrow">{{ sortDir === 'desc' ? '↓' : '↑' }}</span>
+        </button>
       </div>
       <button v-if="isStaff" class="add-btn" @click="openDialog()">+ 新增商品</button>
       <div v-if="searchKeyword" class="search-notice">搜索「{{ searchKeyword }}」</div>
     </div>
 
+    <div v-if="activeCategory && subCats[activeCategory]?.length" class="sub-tabs">
+      <button v-for="sub in subCats[activeCategory]" :key="sub" class="sub-tab" :class="{ active: activeSub === sub }" @click="selectSub(activeCategory, sub)">{{ sub }}</button>
+    </div>
+
+    <div class="table-head">
+      <span class="th th-name">商品</span>
+      <span class="th th-tag">分类</span>
+      <span class="th th-stock">库存</span>
+      <span class="th th-price">售价</span>
+      <span class="th th-ops" v-if="isStaff">操作</span>
+    </div>
+
     <div v-loading="loading">
-      <div v-for="(p, i) in filteredProducts" :key="p.product_id" class="row" @click="showDetail(p)">
-        <span class="row-num">{{ i + 1 }}</span>
+      <div v-for="p in displayedProducts" :key="p.product_id" class="row" @click="showDetail(p)">
         <span class="row-name">{{ p.brand }} {{ p.model }}</span>
         <span class="row-tag">{{ p.category }}</span>
         <span class="row-stock mono-dim">{{ p.stock }}</span>
@@ -20,7 +36,7 @@
           <button class="row-btn warn" @click="remove(p)">删除</button>
         </span>
       </div>
-      <div v-if="!loading && filteredProducts.length === 0" class="empty">暂无商品</div>
+      <div v-if="!loading && displayedProducts.length === 0" class="empty">暂无商品</div>
     </div>
 
     <el-dialog v-model="detailVisible" :title="detailProduct?.model" width="420px">
@@ -101,13 +117,41 @@ import { getProducts, getProductDetail, createProduct, updateProduct, deleteProd
 const route = useRoute()
 const isStaff = computed(() => localStorage.getItem('role') === 'staff')
 const cats = ['', '笔记本', '台式机整机', 'DIY配件']
+const subCats = {
+  '笔记本': ['Lenovo', 'Apple', 'ASUS', 'Dell'],
+  '台式机整机': ['Lenovo', 'HP'],
+  'DIY配件': ['CPU', '显卡', '主板', '内存', '硬盘']
+}
 const activeCategory = ref('')
+const activeSub = ref('')
 const searchKeyword = ref('')
 const products = ref([])
 const loading = ref(false)
 const detailVisible = ref(false)
 const detailProduct = ref(null)
 const detailDetail = ref(null)
+
+const sortFields = [{ key: 'name', label: '名称' }, { key: 'price', label: '价格' }, { key: 'stock', label: '库存' }]
+const sortField = ref(null)
+const sortDir = ref('desc')
+
+const toggleSort = (field) => {
+  if (sortField.value === field) {
+    if (sortDir.value === 'desc') sortDir.value = 'asc'
+    else { sortField.value = null; sortDir.value = 'desc' }
+  } else { sortField.value = field; sortDir.value = 'desc' }
+}
+
+const selectCategory = (cat) => {
+  if (activeCategory.value === cat) { activeCategory.value = ''; activeSub.value = '' }
+  else { activeCategory.value = cat; activeSub.value = '' }
+  fetchProducts()
+}
+
+const selectSub = (cat, sub) => {
+  activeCategory.value = cat
+  activeSub.value = activeSub.value === sub ? '' : sub
+}
 
 const dialogVisible = ref(false)
 const submitting = ref(false)
@@ -116,9 +160,29 @@ const blankForm = () => ({ brand: '', model: '', price: 0, stock: 0, category: '
 const form = ref(blankForm())
 
 const filteredProducts = computed(() => {
-  if (!searchKeyword.value) return products.value
-  const kw = searchKeyword.value.toLowerCase()
-  return products.value.filter(p => p.brand.toLowerCase().includes(kw) || p.model.toLowerCase().includes(kw))
+  let result = products.value
+  if (searchKeyword.value) {
+    const kw = searchKeyword.value.toLowerCase()
+    result = result.filter(p => p.brand.toLowerCase().includes(kw) || p.model.toLowerCase().includes(kw))
+  }
+  if (activeSub.value) {
+    if (activeCategory.value === 'DIY配件') {
+      result = result.filter(p => p.part_type === activeSub.value)
+    } else {
+      const sub = activeSub.value.toLowerCase()
+      result = result.filter(p => p.brand && p.brand.toLowerCase().includes(sub))
+    }
+  }
+  return result
+})
+
+const displayedProducts = computed(() => {
+  const arr = [...filteredProducts.value]
+  if (sortField.value === 'name') arr.sort((a, b) => (a.brand + a.model).localeCompare(b.brand + b.model, 'zh'))
+  else if (sortField.value === 'price') arr.sort((a, b) => a.price - b.price)
+  else if (sortField.value === 'stock') arr.sort((a, b) => a.stock - b.stock)
+  if (sortField.value && sortDir.value === 'desc') arr.reverse()
+  return arr
 })
 
 const fetchProducts = async () => {
@@ -169,21 +233,35 @@ onMounted(() => { searchKeyword.value = route.query.search || ''; fetchProducts(
 
 <style scoped>
 .page { padding-top: 24px; }
-.page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+.page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
 .category-tabs { display: flex; gap: 2px; }
 .tab { font-size: 12px; padding: 3px 8px; border: none; background: none; color: var(--text-secondary); cursor: pointer; font-family: var(--font-sans); transition: color 0.15s; }
 .tab:hover { color: var(--text-primary); }
 .tab.active { color: #e0e0e0; }
-.add-btn { font-size: 13px; padding: 6px 14px; border: 1px solid #333; background: none; color: #5a5a5a; cursor: pointer; border-radius: 4px; font-family: var(--font-sans); }
-.add-btn:hover { background: #161616; color: #e0e0e0; }
+.sort-btns { display: flex; gap: 2px; margin-left: auto; }
+.sort-btn { font-size: 12px; padding: 3px 8px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; font-family: var(--font-sans); border-radius: 3px; transition: color 0.15s; display: flex; align-items: center; gap: 2px; }
+.sort-btn:hover { color: var(--text-secondary); }
+.sort-btn.active { color: #e0e0e0; }
+.sort-arrow { font-family: var(--font-mono); font-size: 11px; }
+.sub-tabs { display: flex; gap: 2px; margin-bottom: 24px; padding-left: 2px; }
+.sub-tab { font-size: 11px; padding: 2px 8px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; font-family: var(--font-sans); transition: color 0.15s; }
+.sub-tab:hover { color: var(--text-secondary); }
+.sub-tab.active { color: #e0e0e0; }
+.add-btn { font-size: 13px; padding: 6px 14px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; border-radius: 4px; font-family: var(--font-sans); transition: color 0.15s; }
+.add-btn:hover { color: #e0e0e0; }
 .search-notice { font-size: 12px; color: var(--text-secondary); }
-.row { display: grid; grid-template-columns: 32px 1fr 90px 60px 100px 120px; align-items: center; padding: 10px 8px; cursor: pointer; transition: background 0.1s; }
+.table-head { display: grid; grid-template-columns: 1fr 90px 60px 100px 120px; align-items: center; padding: 8px 8px; border-bottom: 1px solid #1a1a1a; }
+.th { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.th-tag { text-align: center; }
+.th-stock { text-align: right; padding-right: 16px; }
+.th-price { text-align: right; }
+.th-ops { text-align: right; }
+.row { display: grid; grid-template-columns: 1fr 90px 60px 100px 120px; align-items: center; padding: 12px 8px; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #1a1a1a; }
 .row:hover { background: var(--bg-hover); }
-.row-num { font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary); text-align: right; padding-right: 8px; }
 .row-name { font-size: 13px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.row-tag { font-size: 11px; color: var(--text-tertiary); text-align: center; }
-.row-stock { font-size: 12px; text-align: right; padding-right: 16px; }
-.row-price { font-size: 14px; font-weight: 500; color: var(--text-primary); text-align: right; }
+.row-tag { font-size: 12px; color: var(--text-tertiary); text-align: center; }
+.row-stock { font-size: 13px; color: var(--text-tertiary); text-align: right; padding-right: 16px; }
+.row-price { font-size: 13px; font-weight: 500; color: var(--text-primary); text-align: right; }
 .row-ops { display: flex; gap: 4px; justify-content: flex-end; }
 .mono { font-family: var(--font-mono); }
 .mono-dim { font-family: var(--font-mono); color: var(--text-tertiary); }
@@ -191,6 +269,6 @@ onMounted(() => { searchKeyword.value = route.query.search || ''; fetchProducts(
 .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
 .detail-row span:first-child { color: var(--text-secondary); }
 .row-btn { font-size: 12px; padding: 2px 8px; border: 1px solid var(--border-dim); background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); }
-.row-btn:hover { color: var(--text-primary); border-color: #333; }
+.row-btn:hover { color: var(--text-primary); }
 .row-btn.warn { color: #f56c6c; border-color: #f56c6c66; }
 </style>
