@@ -64,4 +64,8 @@ npm run dev
 - **存储过程**：`sp_create_order` 支持 JSON 多商品下单；`sp_update_order_status` 实现订单状态机（付款/发货/取消/退货，取消与退货回补库存）
 - **审计字段**：所有表含 `created_at` / `updated_at`
 
-详见 [docs/database-technical-document.md](docs/database-technical-document.md)
+技术文档：
+
+- [数据库技术文档](docs/database.md)
+- [后端技术文档](docs/backend.md)
+- [前端技术文档](docs/frontend.md)
