@@ -39,3 +39,11 @@ INSERT INTO Spare_Part_Detail (product_id, part_type, specification) VALUES
 (9, '主板',      'AM5 / ATX / 4×DDR5 / PCIe 5.0 / WiFi 6E'),
 (10, '内存',     'DDR5 6000MHz / CL30 / 2×16GB 套条 / XMP 3.0'),
 (11, '硬盘',     'M.2 NVMe PCIe 4.0 / 读7450MB/s 写6900MB/s');
+
+-- 台式机组装配置（台式机由哪些配件组成）
+INSERT INTO Desktop_Composition (product_id, part_id, quantity) VALUES
+(5, 7, 1),   -- 天逸510S → Ryzen 7 CPU
+(5, 9, 1),   -- 天逸510S → ROG STRIX 主板
+(5, 10, 2),  -- 天逸510S → 2条 Corsair DDR5 内存
+(6, 8, 1),   -- 暗影精灵8 → RTX 4070 显卡
+(6, 11, 1);  -- 暗影精灵8 → 990 PRO 硬盘
