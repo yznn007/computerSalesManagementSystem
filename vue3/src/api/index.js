@@ -32,6 +32,8 @@ export const register = (data) => api.post('/auth/register', data)
 export const loginCustomer = (data) => api.post('/auth/login/customer', data)
 export const loginStaff = (data) => api.post('/auth/login/staff', data)
 export const me = () => api.get('/auth/me')
+export const updateProfile = (data) => api.put('/auth/me', data)
+export const changePassword = (data) => api.put('/auth/me/password', data)
 
 // 客户
 export const getCustomers = () => api.get('/customers')

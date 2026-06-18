@@ -31,7 +31,7 @@
         <el-form-item label="姓名"><el-input v-model="reg.customer_name" /></el-form-item>
         <el-form-item label="手机号"><el-input v-model="reg.phone" maxlength="11" /></el-form-item>
         <el-form-item label="收货地址"><el-input v-model="reg.address" /></el-form-item>
-        <el-form-item label="密码"><el-input v-model="reg.password" type="password" show-password /></el-form-item>
+        <el-form-item label="密码"><el-input v-model="reg.password" type="password" show-password placeholder="默认 123456" /></el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showRegister = false" size="small">取消</el-button>
@@ -72,7 +72,7 @@ const handleLogin = async () => {
 
 const handleRegister = async () => {
   const r = reg.value
-  if (!r.customer_name || !r.phone || !r.address || !r.password) return ElMessage.warning('请填写完整')
+  if (!r.customer_name || !r.phone || !r.address) return ElMessage.warning('请填写完整')
   regLoading.value = true
   try { await register(r); ElMessage.success('注册成功，请登录'); showRegister.value = false; reg.value = { customer_name: '', phone: '', address: '', password: '' } }
   catch {} finally { regLoading.value = false }

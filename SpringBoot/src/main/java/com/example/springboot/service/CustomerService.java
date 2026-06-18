@@ -42,7 +42,9 @@ public class CustomerService {
         c.setCustomerName(req.getCustomerName());
         c.setPhone(req.getPhone());
         c.setAddress(req.getAddress());
-        c.setPasswordHash(encoder.encode(DEFAULT_PASSWORD));
+        String pwd = (req.getPassword() != null && !req.getPassword().isBlank())
+                ? req.getPassword() : DEFAULT_PASSWORD;
+        c.setPasswordHash(encoder.encode(pwd));
         customerMapper.insert(c);
         return c;
     }

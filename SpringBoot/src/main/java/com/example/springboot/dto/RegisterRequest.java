@@ -16,6 +16,6 @@ public class RegisterRequest {
     @NotBlank(message = "收货地址不能为空")
     private String address;
 
-    @NotBlank(message = "密码不能为空")
+    // 密码可选，留空则默认 123456
     private String password;
 }
