@@ -42,8 +42,8 @@ public class OrderController {
         if (AuthContext.ROLE_STAFF.equals(user.role())) {
             return orderService.list(status);
         }
-        // 客户只能看自己的订单
-        return orderService.listByCustomer(user.id().intValue());
+        // 客户只能看自己的订单（可按状态筛选）
+        return orderService.listByCustomer(user.id().intValue(), status);
     }
 
     @GetMapping("/{id}")
@@ -62,7 +62,26 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     public void updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateRequest req) {
-        AuthContext.requireStaff();
+        AuthContext.CurrentUser user = AuthContext.require();
+        String action = req.getAction();
+
+        if (AuthContext.ROLE_STAFF.equals(user.role())) {
+            // 销售员：仅可发货/退货/取消，不可代客户付款
+            if ("pay".equals(action)) {
+                throw new com.example.springboot.common.BizException(403, "付款须由客户本人完成");
+            }
+        } else if (AuthContext.ROLE_CUSTOMER.equals(user.role())) {
+            // 客户：仅可对自己的订单执行付款/取消
+            if (!"pay".equals(action) && !"cancel".equals(action)) {
+                throw new com.example.springboot.common.BizException(403, "客户仅可付款或取消订单");
+            }
+            com.example.springboot.entity.SalesOrder order = orderService.getRawOrder(id);
+            if (!order.getCustomerId().equals(user.id().intValue())) {
+                throw new com.example.springboot.common.BizException(403, "无权操作该订单");
+            }
+        } else {
+            throw new com.example.springboot.common.BizException(403, "无权执行该操作");
+        }
         orderService.updateStatus(id, req);
     }
 }

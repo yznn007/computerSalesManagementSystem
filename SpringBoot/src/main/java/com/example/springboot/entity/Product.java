@@ -13,6 +13,7 @@ public class Product {
     private BigDecimal price;
     private Integer stock;
     private String category;
+    private String partType; // DIY配件分类时由 LEFT JOIN Spare_Part_Detail 填充
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

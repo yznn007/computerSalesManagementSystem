@@ -54,14 +54,23 @@ public class OrderService {
         return result;
     }
 
+    /** 轻量查询：仅取订单主信息（用于权限校验），不存在抛 404 */
+    public SalesOrder getRawOrder(Integer id) {
+        SalesOrder order = orderMapper.findById(id);
+        if (order == null) {
+            throw new BizException(404, "订单不存在");
+        }
+        return order;
+    }
+
     /** 销售员：查看所有订单（可按状态筛选） */
     public List<SalesOrder> list(String status) {
         return orderMapper.findAll(status, null);
     }
 
-    /** 客户：查看自己的订单 */
-    public List<SalesOrder> listByCustomer(Integer customerId) {
-        return orderMapper.findAll(null, customerId);
+    /** 客户：查看自己的订单（可按状态筛选） */
+    public List<SalesOrder> listByCustomer(Integer customerId, String status) {
+        return orderMapper.findAll(status, customerId);
     }
 
     /** 订单详情：订单主信息 + 明细列表 */

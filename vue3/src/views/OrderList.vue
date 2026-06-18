@@ -14,33 +14,38 @@
       </div>
     </div>
 
-    <el-table :data="orders" v-loading="loading" size="small">
-      <el-table-column prop="order_no" label="订单号" width="200">
-        <template #default="{ row }"><span class="mono">{{ row.order_no }}</span></template>
-      </el-table-column>
-      <el-table-column prop="customer_name" label="客户" width="80" />
-      <el-table-column label="金额" width="110">
-        <template #default="{ row }"><span class="mono">¥{{ row.total_amount }}</span></template>
-      </el-table-column>
-      <el-table-column prop="order_date" label="时间" width="160">
-        <template #default="{ row }"><span class="mono dim">{{ row.order_date }}</span></template>
-      </el-table-column>
-      <el-table-column label="状态" width="80">
-        <template #default="{ row }"><span class="status-dot" :class="row.status">{{ row.status }}</span></template>
-      </el-table-column>
-      <el-table-column v-if="isStaff" label="操作" width="220">
-        <template #default="{ row }">
-          <button class="row-btn" @click="showDetail(row)">详情</button>
-          <button v-if="row.status === '待付款'" class="row-btn" @click="openPay(row)">付款</button>
-          <button v-if="row.status === '待付款'" class="row-btn warn" @click="openCancel(row)">取消</button>
-          <button v-if="row.status === '已付款'" class="row-btn ok" @click="doShip(row)">发货</button>
-          <button v-if="row.status === '已发货'" class="row-btn warn" @click="doReturn(row)">退货</button>
-        </template>
-      </el-table-column>
-      <el-table-column v-else label="操作" width="100">
-        <template #default="{ row }"><button class="row-btn" @click="showDetail(row)">详情</button></template>
-      </el-table-column>
-    </el-table>
+    <div class="table-head">
+      <span class="th">订单号</span>
+      <span class="th">客户</span>
+      <span class="th">金额</span>
+      <span class="th">时间</span>
+      <span class="th">状态</span>
+      <span class="th th-center">详情</span>
+      <span class="th th-ops">操作</span>
+    </div>
+
+    <div v-loading="loading">
+      <div v-for="row in orders" :key="row.order_id" class="row">
+        <span class="mono">{{ row.order_no }}</span>
+        <span class="cell">{{ row.customer_name }}</span>
+        <span class="mono">¥{{ row.total_amount }}</span>
+        <span class="mono dim date-cell"><span class="d-line">{{ fmtDate(row.order_date).date }}</span><span class="d-line">{{ fmtDate(row.order_date).time }}</span></span>
+        <span><span class="status-dot" :class="row.status">{{ row.status }}</span></span>
+        <span class="cell-center"><button class="row-btn" @click="showDetail(row)">详情</button></span>
+        <span class="row-ops">
+          <template v-if="isStaff">
+            <button v-if="row.status === '待付款'" class="row-btn warn" @click="openCancel(row)">取消</button>
+            <button v-if="row.status === '已付款'" class="row-btn ok" @click="doShip(row)">发货</button>
+            <button v-if="row.status === '已发货'" class="row-btn warn" @click="doReturn(row)">退货</button>
+          </template>
+          <template v-else>
+            <button v-if="row.status === '待付款'" class="row-btn" @click="openPay(row)">付款</button>
+            <button v-if="row.status === '待付款'" class="row-btn warn" @click="openCancel(row)">取消</button>
+          </template>
+        </span>
+      </div>
+      <div v-if="!loading && orders.length === 0" class="empty">暂无订单</div>
+    </div>
 
     <el-dialog v-model="detailVisible" title="订单详情" width="500px">
       <template v-if="detailOrder">
@@ -49,7 +54,7 @@
           <div class="detail-row"><span>客户</span><span>{{ detailOrder.customer_name }}</span></div>
           <div class="detail-row"><span>总金额</span><span class="mono">¥{{ detailOrder.total_amount }}</span></div>
           <div class="detail-row"><span>状态</span><span>{{ detailOrder.status }}</span></div>
-          <div class="detail-row"><span>时间</span><span>{{ detailOrder.order_date }}</span></div>
+          <div class="detail-row"><span>时间</span><span>{{ fmtDate(detailOrder.order_date).date }} {{ fmtDate(detailOrder.order_date).time }}</span></div>
         </div>
         <div v-if="detailItems.length" class="detail-sub" v-for="item in detailItems" :key="item.detail_id">
           <span>{{ item.brand }} {{ item.model }}</span>
@@ -105,6 +110,13 @@ const payForm = ref({ id: null, payment_method: '微信' })
 const cancelVisible = ref(false)
 const cancelForm = ref({ id: null, cancel_reason: '' })
 
+const fmtDate = (d) => {
+  if (!d) return { date: '', time: '' }
+  const s = String(d).replace('T', ' ')
+  const [date, time] = s.split(/[\s.]/)
+  return { date: date || '', time: (time || '').slice(0, 8) }
+}
+
 const fetchOrders = async () => {
   loading.value = true
   try { orders.value = (await getOrders(statusFilter.value ? { status: statusFilter.value } : undefined)).data || [] }
@@ -148,21 +160,40 @@ onMounted(fetchOrders)
 .page { padding-top: 24px; }
 .page-header { margin-bottom: 16px; }
 .filters { display: flex; gap: 4px; }
-.filter-btn { font-size: 12px; padding: 4px 10px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); transition: all 0.15s; }
-.filter-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+.filter-btn { font-size: 12px; padding: 4px 10px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); transition: color 0.15s; }
+.filter-btn:hover { color: var(--text-primary); }
 .filter-btn.active { color: #e0e0e0; }
-.row-btn { font-size: 12px; padding: 2px 8px; border: 1px solid var(--border-dim); background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); margin-right: 4px; }
-.row-btn:hover { color: var(--text-primary); border-color: #333; }
-.row-btn.ok { color: #67C23A; border-color: #67C23A66; }
-.row-btn.warn { color: #f56c6c; border-color: #f56c6c66; }
-.status-dot { font-size: 12px; }
+
+.table-head { display: grid; grid-template-columns: 280px 90px 100px 1fr 80px 70px 160px; align-items: center; padding: 8px 8px; border-bottom: 1px solid #1a1a1a; }
+.th { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+.th-ops { text-align: right; }
+.th-center { text-align: center; }
+
+.row { display: grid; grid-template-columns: 280px 90px 100px 1fr 80px 70px 160px; align-items: center; padding: 12px 8px; transition: background 0.1s; border-bottom: 1px solid #1a1a1a; }
+.row:hover { background: var(--bg-hover); }
+.row .mono:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cell { font-size: 13px; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-ops { display: flex; gap: 4px; justify-content: flex-end; }
+.cell-center { text-align: center; }
+
+.row-btn { font-size: 12px; padding: 2px 8px; border: none; background: none; color: var(--text-secondary); cursor: pointer; border-radius: 3px; font-family: var(--font-sans); transition: color 0.15s; }
+.row-btn:hover { color: var(--text-primary); }
+.row-btn.ok { color: #67C23A; }
+.row-btn.warn { color: #f56c6c; }
+
+.status-dot { font-size: 13px; }
 .status-dot.待付款 { color: var(--text-secondary); }
 .status-dot.已付款 { color: #e0e0e0; }
 .status-dot.已发货 { color: #67C23A; }
 .status-dot.已取消 { color: var(--text-tertiary); }
 .status-dot.已退货 { color: #e6a23c; }
-.mono { font-family: var(--font-mono); font-size: 12px; }
+
+.mono { font-family: var(--font-mono); font-size: 13px; color: var(--text-primary); }
 .dim { color: var(--text-tertiary); }
+.date-cell { display: flex; flex-direction: column; line-height: 1.3; }
+.d-line { display: block; }
+.empty { text-align: center; color: var(--text-tertiary); padding: 80px 0; font-size: 13px; }
+
 .detail-table { margin-bottom: 20px; }
 .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-dim); font-size: 13px; }
 .detail-row span:first-child { color: var(--text-secondary); }
