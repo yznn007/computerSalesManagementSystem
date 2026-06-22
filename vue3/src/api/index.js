@@ -54,4 +54,7 @@ export const getOrders = (params) => api.get('/orders', { params })
 export const getOrderDetail = (id) => api.get(`/orders/${id}`)
 export const updateOrderStatus = (id, payload) => api.put(`/orders/${id}/status`, payload)
 
+// 统计
+export const getStatsOverview = () => api.get('/stats/overview')
+
 export default api
