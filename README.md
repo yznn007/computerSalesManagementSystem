@@ -32,8 +32,8 @@ mysql -u root -proot --default-character-set=utf8mb4
 source sql/01_schema.sql
 source sql/02_indexes.sql
 source sql/03_procedures.sql
-source sql/04_test_data.sql
-source sql/05_status_procedures.sql   # 订单状态机（付款/发货/取消/退货）
+source sql/04_status_procedures.sql   # 订单状态机（付款/发货/取消/退货）
+source sql/05_test_data.sql           # 种子数据（账号 + 全品类商品）
 
 # 后端启动
 .\SpringBoot\mvnw.cmd -f .\SpringBoot\pom.xml spring-boot:run

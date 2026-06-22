@@ -132,11 +132,11 @@ ThreadLocal 持有 `CurrentUser(Long id, String role, String name)` record。
 
 `CommandLineRunner` 标注 `@Order(1)`，启动时执行：
 
-1. 将 `Customer` 表中所有 `password_hash = '__SEED_123456__'` 的记录替换为 `BCrypt("123456")`
-2. 若 `Staff` 表为空 → 插入默认账号 `admin` / `admin123` / 系统管理员
-3. 否则将 `password_hash = '__SEED_ADMIN123__'` 替换为 `BCrypt("admin123")`
+1. 扫描 `Customer` 表中所有自描述占位符 `__SEED_<明文>__`（`LEFT(password_hash,7)='__SEED_'`），提取明文并替换为对应 `BCrypt(明文)`，如 `__SEED_123456__`→`BCrypt("123456")`、`__SEED_159951__`→`BCrypt("159951")`
+2. 若 `Staff` 表为空 → 插入默认账号 `admin` / `admin` / 山田小姐
+3. 否则按同样规则替换 `Staff` 表的种子占位符，如 `__SEED_admin__`→`BCrypt("admin")`、`__SEED_admin123__`→`BCrypt("admin123")`
 
-> 种子占位符由 `sql/04_test_data.sql` 写入明文占位，后端启动时统一替换为真实哈希，避免在 SQL 脚本中硬编码 BCrypt。
+> 占位符自带明文（`__SEED_<明文>__`），由 `sql/05_test_data.sql` 写入，后端启动时统一提取明文并替换为真实哈希，避免在 SQL 脚本中硬编码 BCrypt。新增任意账号只需写占位符，无需改 Java。
 
 ---
 
@@ -314,7 +314,8 @@ void callXxx(Map<String, Object> params);
 |------|------|------|----------|
 | 客户 | 手机号 `13800138001` | `123456` | `POST /api/auth/login/customer` |
 | 客户 | 手机号 `13900139002` | `123456` | `POST /api/auth/login/customer` |
-| 销售员 | 用户名 `admin` | `admin123` | `POST /api/auth/login/staff` |
+| 客户 | 手机号 `18903503653`（石盛辰） | `159951` | `POST /api/auth/login/customer` |
+| 销售员 | 用户名 `admin`（山田小姐） | `admin` | `POST /api/auth/login/staff` |
 
 ---
 
