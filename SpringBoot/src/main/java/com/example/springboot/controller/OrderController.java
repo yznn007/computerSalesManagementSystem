@@ -1,9 +1,11 @@
 package com.example.springboot.controller;
 
+import com.example.springboot.common.BizException;
 import com.example.springboot.dto.OrderCreateRequest;
 import com.example.springboot.dto.StatusUpdateRequest;
 import com.example.springboot.entity.SalesOrder;
 import com.example.springboot.security.AuthContext;
+import com.example.springboot.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +16,9 @@ import java.util.Map;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final com.example.springboot.service.OrderService orderService;
+    private final OrderService orderService;
 
-    public OrderController(com.example.springboot.service.OrderService orderService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
@@ -30,7 +32,7 @@ public class OrderController {
         } else {
             // 销售员或其他：必须提供 customer_id
             if (req.getCustomerId() == null) {
-                throw new com.example.springboot.common.BizException("请选择客户");
+                throw new BizException("请选择客户");
             }
         }
         return orderService.create(req);
@@ -50,12 +52,11 @@ public class OrderController {
     public Map<String, Object> detail(@PathVariable Integer id) {
         AuthContext.CurrentUser user = AuthContext.require();
         Map<String, Object> result = orderService.detail(id);
-        com.example.springboot.entity.SalesOrder order =
-                (com.example.springboot.entity.SalesOrder) result.get("order");
+        SalesOrder order = (SalesOrder) result.get("order");
         // 客户只能查看自己的订单
         if (AuthContext.ROLE_CUSTOMER.equals(user.role())
                 && !order.getCustomerId().equals(user.id().intValue())) {
-            throw new com.example.springboot.common.BizException(403, "无权查看该订单");
+            throw new BizException(403, "无权查看该订单");
         }
         return result;
     }
@@ -68,19 +69,19 @@ public class OrderController {
         if (AuthContext.ROLE_STAFF.equals(user.role())) {
             // 销售员：仅可发货/退货/取消，不可代客户付款
             if ("pay".equals(action)) {
-                throw new com.example.springboot.common.BizException(403, "付款须由客户本人完成");
+                throw new BizException(403, "付款须由客户本人完成");
             }
         } else if (AuthContext.ROLE_CUSTOMER.equals(user.role())) {
             // 客户：仅可对自己的订单执行付款/取消
             if (!"pay".equals(action) && !"cancel".equals(action)) {
-                throw new com.example.springboot.common.BizException(403, "客户仅可付款或取消订单");
+                throw new BizException(403, "客户仅可付款或取消订单");
             }
-            com.example.springboot.entity.SalesOrder order = orderService.getRawOrder(id);
+            SalesOrder order = orderService.getRawOrder(id);
             if (!order.getCustomerId().equals(user.id().intValue())) {
-                throw new com.example.springboot.common.BizException(403, "无权操作该订单");
+                throw new BizException(403, "无权操作该订单");
             }
         } else {
-            throw new com.example.springboot.common.BizException(403, "无权执行该操作");
+            throw new BizException(403, "无权执行该操作");
         }
         orderService.updateStatus(id, req);
     }

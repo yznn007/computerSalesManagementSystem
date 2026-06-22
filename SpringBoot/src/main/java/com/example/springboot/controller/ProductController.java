@@ -4,6 +4,7 @@ import com.example.springboot.dto.ProductUpsertRequest;
 import com.example.springboot.entity.Product;
 import com.example.springboot.entity.ProductDetail;
 import com.example.springboot.security.AuthContext;
+import com.example.springboot.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +14,9 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private final com.example.springboot.service.ProductService productService;
+    private final ProductService productService;
 
-    public ProductController(com.example.springboot.service.ProductService productService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 

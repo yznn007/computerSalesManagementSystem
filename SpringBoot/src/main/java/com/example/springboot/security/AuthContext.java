@@ -1,5 +1,7 @@
 package com.example.springboot.security;
 
+import com.example.springboot.common.BizException;
+
 public class AuthContext {
     public static final String ROLE_CUSTOMER = "customer";
     public static final String ROLE_STAFF = "staff";
@@ -23,7 +25,7 @@ public class AuthContext {
     public static CurrentUser require() {
         CurrentUser u = HOLDER.get();
         if (u == null) {
-            throw new com.example.springboot.common.BizException(401, "未登录");
+            throw new BizException(401, "未登录");
         }
         return u;
     }
@@ -31,7 +33,7 @@ public class AuthContext {
     public static CurrentUser requireStaff() {
         CurrentUser u = require();
         if (!ROLE_STAFF.equals(u.role())) {
-            throw new com.example.springboot.common.BizException(403, "需要销售员权限");
+            throw new BizException(403, "需要销售员权限");
         }
         return u;
     }

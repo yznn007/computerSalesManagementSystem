@@ -1,5 +1,6 @@
 package com.example.springboot.service;
 
+import com.example.springboot.common.BizException;
 import com.example.springboot.dto.ProductUpsertRequest;
 import com.example.springboot.entity.Product;
 import com.example.springboot.entity.ProductDetail;
@@ -26,7 +27,7 @@ public class ProductService {
     public ProductDetail detail(Integer id) {
         ProductDetail d = productMapper.findDetailById(id);
         if (d == null) {
-            throw new com.example.springboot.common.BizException(404, "商品不存在");
+            throw new BizException(404, "商品不存在");
         }
         // 台式机整机：附带组装配置
         if ("台式机整机".equals(d.getCategory())) {
@@ -52,11 +53,11 @@ public class ProductService {
     public Product update(Integer id, ProductUpsertRequest req) {
         Product p = productMapper.findBasicById(id);
         if (p == null) {
-            throw new com.example.springboot.common.BizException(404, "商品不存在");
+            throw new BizException(404, "商品不存在");
         }
         // 不允许修改分类（详情表结构差异，改分类需重建详情）
         if (!p.getCategory().equals(req.getCategory())) {
-            throw new com.example.springboot.common.BizException("不允许修改商品分类");
+            throw new BizException("不允许修改商品分类");
         }
         p.setBrand(req.getBrand());
         p.setModel(req.getModel());
@@ -70,18 +71,18 @@ public class ProductService {
     public void delete(Integer id) {
         Product p = productMapper.findBasicById(id);
         if (p == null) {
-            throw new com.example.springboot.common.BizException(404, "商品不存在");
+            throw new BizException(404, "商品不存在");
         }
         try {
             productMapper.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new com.example.springboot.common.BizException("该商品存在订单明细或被台式机配置引用，无法删除");
+            throw new BizException("该商品存在订单明细或被台式机配置引用，无法删除");
         }
     }
 
     private void validateCategory(String category) {
         if (!List.of("笔记本", "台式机整机", "DIY配件").contains(category)) {
-            throw new com.example.springboot.common.BizException("分类必须为 笔记本/台式机整机/DIY配件");
+            throw new BizException("分类必须为 笔记本/台式机整机/DIY配件");
         }
     }
 

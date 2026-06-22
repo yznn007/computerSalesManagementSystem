@@ -2,6 +2,7 @@ package com.example.springboot.controller;
 
 import com.example.springboot.dto.*;
 import com.example.springboot.security.AuthContext;
+import com.example.springboot.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final com.example.springboot.service.AuthService authService;
+    private final AuthService authService;
 
-    public AuthController(com.example.springboot.service.AuthService authService) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
@@ -42,6 +43,6 @@ public class AuthController {
 
     @PutMapping("/me/password")
     public void changePassword(@Valid @RequestBody ChangePasswordRequest req) {
-        authService.changePassword(req.getOldPassword(), req.getNewPassword(), AuthContext.require());
+        authService.changePassword(req.oldPassword(), req.newPassword(), AuthContext.require());
     }
 }
