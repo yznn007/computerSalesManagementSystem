@@ -37,6 +37,7 @@ CREATE TABLE Product (
     category   ENUM('笔记本', '台式机整机', 'DIY配件') NOT NULL COMMENT '商品分类',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    CONSTRAINT uq_product_brand_model UNIQUE (brand, model),
     CONSTRAINT chk_stock CHECK (stock >= 0)
 ) ENGINE=InnoDB COMMENT='商品表';
 
