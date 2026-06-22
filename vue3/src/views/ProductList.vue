@@ -17,6 +17,10 @@
       <button v-for="sub in subCats[activeCategory]" :key="sub" class="sub-tab" :class="{ active: activeSub === sub }" @click="selectSub(activeCategory, sub)">{{ sub }}</button>
     </div>
 
+    <div v-if="activeCategory === 'DIY配件' && activeSub && subCats3[activeSub]?.length" class="sub-tabs third-tabs">
+      <button v-for="third in subCats3[activeSub]" :key="third" class="sub-tab third-tab" :class="{ active: activeThird === third }" @click="selectThird(third)">{{ third }}</button>
+    </div>
+
     <div class="table-head">
       <span class="th th-name">商品</span>
       <span class="th th-tag">分类</span>
@@ -118,12 +122,23 @@ const route = useRoute()
 const isStaff = computed(() => localStorage.getItem('role') === 'staff')
 const cats = ['', '笔记本', '台式机整机', 'DIY配件']
 const subCats = {
-  '笔记本': ['Lenovo', 'Apple', 'ASUS', 'Dell'],
-  '台式机整机': ['Lenovo', 'HP'],
-  'DIY配件': ['CPU', '显卡', '主板', '内存', '硬盘']
+  '笔记本': ['Lenovo', 'Apple', 'ASUS', 'Dell', 'HP', 'HUAWEI', 'MSI', 'Xiaomi', 'Honor', 'Razer'],
+  '台式机整机': ['Lenovo', 'HP', 'ASUS', 'Dell', 'MSI'],
+  'DIY配件': ['CPU', '显卡', '主板', '内存', '硬盘', '电源', '机箱', '散热器']
+}
+const subCats3 = {
+  'CPU': ['AMD', 'Intel'],
+  '显卡': ['NVIDIA', 'AMD', 'ASUS'],
+  '主板': ['ASUS', 'MSI', 'Gigabyte', 'ASRock'],
+  '内存': ['Corsair', 'G.SKILL', 'Kingston', 'Crucial'],
+  '硬盘': ['Samsung', 'WD', 'Crucial', 'Seagate', 'Kingston'],
+  '电源': ['Corsair', 'Seasonic', 'Super Flower', 'FSP', 'Great Wall', 'Segotep', 'Antec'],
+  '机箱': ['Lian Li', 'NZXT', 'Phanteks', 'CoolerMaster', 'Fractal Design', 'be quiet!'],
+  '散热器': ['Noctua', 'Thermalright', 'Valkyrie', 'DeepCool', 'CoolerMaster', 'EK'],
 }
 const activeCategory = ref('')
 const activeSub = ref('')
+const activeThird = ref('')
 const searchKeyword = ref('')
 const products = ref([])
 const loading = ref(false)
@@ -143,15 +158,27 @@ const toggleSort = (field) => {
 }
 
 const selectCategory = (cat) => {
-  if (activeCategory.value === cat) { activeCategory.value = ''; activeSub.value = '' }
-  else { activeCategory.value = cat; activeSub.value = '' }
-  fetchProducts()
-}
+  if (activeCategory.value === cat) {
+    activeCategory.value = '';
+    activeSub.value = '';
+    activeThird.value = '';
+  } else {
+    activeCategory.value = cat;
+    activeSub.value = '';
+    activeThird.value = '';
+  }
+  fetchProducts();
+};
 
 const selectSub = (cat, sub) => {
-  activeCategory.value = cat
-  activeSub.value = activeSub.value === sub ? '' : sub
-}
+  activeCategory.value = cat;
+  activeSub.value = activeSub.value === sub ? '' : sub;
+  activeThird.value = '';
+};
+
+const selectThird = (third) => {
+  activeThird.value = activeThird.value === third ? '' : third;
+};
 
 const dialogVisible = ref(false)
 const submitting = ref(false)
@@ -172,6 +199,9 @@ const filteredProducts = computed(() => {
       const sub = activeSub.value.toLowerCase()
       result = result.filter(p => p.brand && p.brand.toLowerCase().includes(sub))
     }
+  }
+  if (activeThird.value && activeCategory.value === 'DIY配件') {
+    result = result.filter(p => p.brand === activeThird.value)
   }
   return result
 })
@@ -247,6 +277,9 @@ onMounted(() => { searchKeyword.value = route.query.search || ''; fetchProducts(
 .sub-tab { font-size: 11px; padding: 2px 8px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; font-family: var(--font-sans); transition: color 0.15s; }
 .sub-tab:hover { color: var(--text-secondary); }
 .sub-tab.active { color: #e0e0e0; }
+.third-tabs { margin-bottom: 16px; padding-left: 0; }
+.third-tab { opacity: 0.7; }
+.third-tab.active { opacity: 1; }
 .add-btn { font-size: 13px; padding: 6px 14px; border: none; background: none; color: var(--text-tertiary); cursor: pointer; border-radius: 4px; font-family: var(--font-sans); transition: color 0.15s; }
 .add-btn:hover { color: #e0e0e0; }
 .search-notice { font-size: 12px; color: var(--text-secondary); }
