@@ -34,7 +34,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | customer_name | VARCHAR(50) | NOT NULL | 姓名 |
 | phone | VARCHAR(20) | UNIQUE, NOT NULL | 手机号（登录账号） |
 | address | VARCHAR(200) | NOT NULL | 收货地址 |
-| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；种子值 `__SEED_123456__` 由后端启动时替换 |
+| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；自描述种子值 `__SEED_<明文>__`（如 `__SEED_123456__`、`__SEED_159951__`）由后端启动时提取明文并替换 |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
 
@@ -46,7 +46,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 |------|------|------|------|
 | staff_id | INT | PK, AUTO_INCREMENT | 销售员编号 |
 | username | VARCHAR(50) | UNIQUE, NOT NULL | 登录用户名 |
-| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；种子值 `__SEED_ADMIN123__` 由后端启动时替换 |
+| password_hash | VARCHAR(255) | NOT NULL | 密码哈希（BCrypt）；自描述种子值 `__SEED_<明文>__`（如 `__SEED_admin__`、`__SEED_admin123__`）由后端启动时提取明文并替换 |
 | staff_name | VARCHAR(50) | NOT NULL | 销售员姓名 |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
@@ -56,13 +56,15 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | 字段 | 类型 | 约束 | 说明 |
 |------|------|------|------|
 | product_id | INT | PK, AUTO_INCREMENT | 商品编号 |
-| brand | VARCHAR(50) | NOT NULL | 品牌 |
-| model | VARCHAR(100) | NOT NULL | 型号 |
+| brand | VARCHAR(50) | NOT NULL, UNIQUE(brand,model) | 品牌 |
+| model | VARCHAR(100) | NOT NULL, UNIQUE(brand,model) | 型号 |
 | price | DECIMAL(10,2) | NOT NULL | 售价 |
 | stock | INT | NOT NULL, CHECK(stock >= 0) | 库存量 |
 | category | ENUM('笔记本','台式机整机','DIY配件') | NOT NULL | 商品分类 |
 | created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP | 创建时间 |
 | updated_at | DATETIME | ON UPDATE CURRENT_TIMESTAMP | 更新时间 |
+
+> `uq_product_brand_model UNIQUE(brand, model)`：保证品牌+型号唯一，使种子脚本可用 `INSERT IGNORE` 批量幂等导入。
 
 ### 3.4 Laptop_Detail — 笔记本详情
 
@@ -303,8 +305,8 @@ mysql -u root -proot --default-character-set=utf8mb4
 source sql/01_schema.sql    # 建库 + 建表
 source sql/02_indexes.sql   # 非聚簇索引
 source sql/03_procedures.sql # 存储过程（下单/搜索/查询）
-source sql/04_test_data.sql # 测试数据
-source sql/05_status_procedures.sql # 订单状态机（付款/发货/取消/退货）
+source sql/04_status_procedures.sql # 订单状态机（付款/发货/取消/退货）
+source sql/05_test_data.sql # 种子数据（账号 + 全品类商品，单文件按品类分区）
 ```
 
 > `--default-character-set=utf8mb4` 必须指定，否则中文数据会乱码。
