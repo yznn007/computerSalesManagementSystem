@@ -3,6 +3,7 @@ package com.example.springboot.controller;
 import com.example.springboot.dto.CustomerUpsertRequest;
 import com.example.springboot.entity.Customer;
 import com.example.springboot.security.AuthContext;
+import com.example.springboot.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,9 @@ import java.util.List;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
-    private final com.example.springboot.service.CustomerService customerService;
+    private final CustomerService customerService;
 
-    public CustomerController(com.example.springboot.service.CustomerService customerService) {
+    public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
 

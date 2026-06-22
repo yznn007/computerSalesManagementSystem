@@ -1,13 +1,3 @@
 package com.example.springboot.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor
-public class LoginResponse {
-    private String token;
-    private String role;
-    private Long id;
-    private String name;
-}
+public record LoginResponse(String token, String role, Long id, String name) {}

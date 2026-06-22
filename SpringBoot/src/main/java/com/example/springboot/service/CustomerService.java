@@ -1,5 +1,6 @@
 package com.example.springboot.service;
 
+import com.example.springboot.common.BizException;
 import com.example.springboot.dto.CustomerUpsertRequest;
 import com.example.springboot.entity.Customer;
 import com.example.springboot.mapper.CustomerMapper;
@@ -29,14 +30,14 @@ public class CustomerService {
     public Customer get(Integer id) {
         Customer c = customerMapper.findById(id);
         if (c == null) {
-            throw new com.example.springboot.common.BizException(404, "客户不存在");
+            throw new BizException(404, "客户不存在");
         }
         return c;
     }
 
     public Customer create(CustomerUpsertRequest req) {
         if (customerMapper.findByPhone(req.getPhone()) != null) {
-            throw new com.example.springboot.common.BizException("该手机号已存在");
+            throw new BizException("该手机号已存在");
         }
         Customer c = new Customer();
         c.setCustomerName(req.getCustomerName());
@@ -54,7 +55,7 @@ public class CustomerService {
         // 手机号变更需检查唯一
         if (!c.getPhone().equals(req.getPhone())) {
             if (customerMapper.findByPhone(req.getPhone()) != null) {
-                throw new com.example.springboot.common.BizException("该手机号已存在");
+                throw new BizException("该手机号已存在");
             }
         }
         c.setCustomerName(req.getCustomerName());
@@ -69,7 +70,7 @@ public class CustomerService {
         try {
             customerMapper.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new com.example.springboot.common.BizException("该客户存在关联订单，无法删除");
+            throw new BizException("该客户存在关联订单，无法删除");
         }
     }
 }
