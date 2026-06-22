@@ -16,9 +16,6 @@ public interface CustomerMapper {
     @Select("SELECT * FROM Customer WHERE phone = #{phone}")
     Customer findByPhone(@Param("phone") String phone);
 
-    @Select("SELECT COUNT(*) FROM Customer")
-    long countAll();
-
     @Insert("INSERT INTO Customer (customer_name, phone, address, password_hash) " +
             "VALUES (#{customerName}, #{phone}, #{address}, #{passwordHash})")
     @Options(useGeneratedKeys = true, keyProperty = "customerId")
@@ -31,11 +28,11 @@ public interface CustomerMapper {
     @Delete("DELETE FROM Customer WHERE customer_id = #{id}")
     int deleteById(@Param("id") Integer id);
 
+    @Select("SELECT DISTINCT password_hash FROM Customer WHERE LEFT(password_hash, 7) = '__SEED_'")
+    List<String> findSeedPasswords();
+
     @Update("UPDATE Customer SET password_hash = #{hash} WHERE password_hash = #{seed}")
     int replaceSeedPasswords(@Param("seed") String seed, @Param("hash") String hash);
-
-    @Update("UPDATE Customer SET password_hash = #{hash} WHERE phone = #{phone}")
-    int updatePasswordHashByPhone(@Param("phone") String phone, @Param("hash") String hash);
 
     @Update("UPDATE Customer SET password_hash = #{hash} WHERE customer_id = #{id}")
     int updatePasswordHashById(@Param("id") Integer id, @Param("hash") String hash);
