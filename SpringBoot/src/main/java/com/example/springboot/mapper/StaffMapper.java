@@ -7,9 +7,6 @@ import java.util.List;
 
 public interface StaffMapper {
 
-    @Select("SELECT * FROM Staff ORDER BY staff_id")
-    List<Staff> findAll();
-
     @Select("SELECT * FROM Staff WHERE staff_id = #{id}")
     Staff findById(@Param("id") Integer id);
 
@@ -26,8 +23,8 @@ public interface StaffMapper {
     @Update("UPDATE Staff SET username=#{username}, staff_name=#{staffName} WHERE staff_id = #{staffId}")
     int update(Staff s);
 
-    @Delete("DELETE FROM Staff WHERE staff_id = #{id}")
-    int deleteById(@Param("id") Integer id);
+    @Select("SELECT DISTINCT password_hash FROM Staff WHERE LEFT(password_hash, 7) = '__SEED_'")
+    List<String> findSeedPasswords();
 
     @Update("UPDATE Staff SET password_hash = #{hash} WHERE password_hash = #{seed}")
     int replaceSeedPasswords(@Param("seed") String seed, @Param("hash") String hash);
