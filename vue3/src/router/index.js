@@ -11,6 +11,7 @@ const routes = [
       { path: 'products', name: 'ProductList', component: () => import('../views/ProductList.vue'), meta: { title: '商品', staff: true } },
       { path: 'orders', name: 'OrderList', component: () => import('../views/OrderList.vue'), meta: { title: '订单' } },
       { path: 'customers', name: 'CustomerList', component: () => import('../views/CustomerList.vue'), meta: { title: '客户', staff: true } },
+      { path: 'stats', name: 'SalesReport', component: () => import('../views/SalesReport.vue'), meta: { title: '统计', staff: true } },
     ]
   }
 ]
