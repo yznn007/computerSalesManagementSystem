@@ -82,7 +82,7 @@ app.mount('#app')
 
 ### 3.3 全局样式加载
 
-`main.js` 引入了 Element Plus 的 `index.css` 与暗色 `dark/css-vars.css`。`src/assets/main.css`（含 `reset.css` 与自定义 CSS 变量、Element Plus 暗色覆盖）**当前未被任何模块 import 引入**——详见 §10 已知问题。
+`main.js` 引入了 Element Plus 的 `index.css` 与暗色 `dark/css-vars.css`，以及 `src/assets/main.css`（含 `reset.css` 与自定义 CSS 变量、Element Plus 暗色覆盖），详见 §10.3。
 
 ---
 
@@ -276,7 +276,7 @@ api.interceptors.response.use(
 
 ---
 
-## 10. 样式体系与已知问题
+## 10. 样式体系
 
 ### 10.1 设计风格
 
@@ -290,14 +290,9 @@ api.interceptors.response.use(
 
 `assets/reset.css` 定义全局 CSS 变量（如 `--font-mono`、`--font-sans`、`--text-primary`、`--text-secondary`、`--text-tertiary`、`--bg-hover`、`--border-dim` 等），视图 `<style scoped>` 中大量引用。
 
-### 10.3 ⚠ 已知问题：main.css 未被引入
+### 10.3 全局样式加载
 
-`src/assets/main.css`（含 `reset.css` 的 `@import`、CSS 变量定义、Element Plus 暗色组件覆盖）**当前未在 `main.js` 或任何模块中 `import`**，`index.html` 也未 `<link>`。这导致：
-
-- 视图中 `var(--font-mono)`、`var(--text-primary)` 等自定义变量**回退到浏览器默认值**（等宽字体、文字颜色等未按设计生效）
-- `assets/main.css` 中对 Element Plus 暗色组件的覆盖样式未生效
-
-修复方式：在 `main.js` 中追加 `import './assets/main.css'`（或在 `App.vue` 中引入）。本文档记录此现状，便于后续维护者定位样式异常。
+`src/assets/main.css`（含 `reset.css` 的 `@import`、CSS 变量定义、Element Plus 暗色组件覆盖）已在 `main.js` 第 7 行通过 `import './assets/main.css'` 引入。全局 CSS 变量（`--font-mono`、`--text-primary` 等）和 Element Plus 暗色覆盖均已生效。
 
 ---
 
