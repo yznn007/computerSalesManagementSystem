@@ -1,10 +1,9 @@
 package com.example.springboot;
 
+import com.example.springboot.support.AbstractDbTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class ApplicationTests {
+class ApplicationTests extends AbstractDbTest {
 
     @Test
     void contextLoads() {

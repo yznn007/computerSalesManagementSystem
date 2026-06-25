@@ -4,6 +4,7 @@ import com.example.springboot.entity.Staff;
 import com.example.springboot.mapper.CustomerMapper;
 import com.example.springboot.mapper.StaffMapper;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.function.BiConsumer;
 
 @Component
 @Order(1)
+@Profile("!test")
 public class DataInitializer implements CommandLineRunner {
 
     // 自描述占位符格式：__SEED_<明文>__，由本类启动时提取明文并替换为 BCrypt 哈希
