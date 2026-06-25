@@ -24,7 +24,7 @@ INSERT IGNORE INTO Customer (customer_name, phone, address, password_hash) VALUE
 ('赵六',   '13600136004', '深圳市南山区科技园南区',      '__SEED_123456__'),
 ('孙七',   '13500135005', '杭州市西湖区文三路269号',     '__SEED_123456__'),
 ('周八',   '13400134006', '成都市武侯区科华中路2号',     '__SEED_123456__'),
-('石盛辰', '18903503653', '应急管理大学',                '__SEED_159951__');
+('佐佐木大叔', '18903503653', '应急管理大学',                '__SEED_159951__');
 
 -- 销售员
 INSERT IGNORE INTO Staff (username, password_hash, staff_name) VALUES
@@ -482,3 +482,64 @@ JOIN Product pt ON pt.brand = c.pt_brand AND pt.model = c.pt_model
 JOIN Spare_Part_Detail spd ON spd.product_id = pt.product_id
 LEFT JOIN Desktop_Composition dc ON dc.product_id = pc.product_id AND dc.part_id = spd.part_id
 WHERE dc.composition_id IS NULL;
+
+
+-- ============================================================
+-- 十三、订单测试数据（覆盖全部 5 种状态，按 order_no 幂等防重）
+--   说明：
+--   1) order_no 用固定值 ORD-SEED-NN（非 UUID），重复执行靠 NOT EXISTS 跳过
+--   2) 客户按 phone 关联、商品按 brand+model 关联，避免依赖自增 ID
+--   3) total_amount 先占位 0，写完明细后由真实明细 SUM 回填，保证金额准确
+--   4) 为保持脚本幂等，此处不扣减 Product 库存（演示订单关系用，非库存对账）
+-- ============================================================
+
+-- 13.1 订单主表（金额先置 0，稍后回填）
+INSERT INTO Sales_Order
+  (order_no, customer_id, order_date, total_amount, status, payment_method, payment_time, cancel_reason, cancel_time)
+SELECT o.order_no, c.customer_id, o.order_date, 0, o.status, o.payment_method, o.payment_time, o.cancel_reason, o.cancel_time
+FROM (
+  SELECT 'ORD-SEED-01' AS order_no, '13800138001' AS phone, '2026-06-01 10:15:00' AS order_date, '待付款' AS status, NULL                 AS payment_method, NULL                  AS payment_time, NULL           AS cancel_reason, NULL                  AS cancel_time
+  UNION ALL SELECT 'ORD-SEED-02', '13800138001', '2026-06-02 14:30:00', '已付款', '微信',     '2026-06-02 14:35:00', NULL,             NULL
+  UNION ALL SELECT 'ORD-SEED-03', '13900139002', '2026-06-03 09:20:00', '已发货', '支付宝',   '2026-06-03 09:25:00', NULL,             NULL
+  UNION ALL SELECT 'ORD-SEED-04', '13700137003', '2026-06-05 16:40:00', '已取消', NULL,       NULL,                  '客户改变主意',   '2026-06-05 17:00:00'
+  UNION ALL SELECT 'ORD-SEED-05', '13600136004', '2026-06-08 11:05:00', '已退货', '银行卡',   '2026-06-08 11:10:00', NULL,             NULL
+  UNION ALL SELECT 'ORD-SEED-06', '18903503653', '2026-06-10 20:30:00', '已付款', '货到付款', '2026-06-10 20:31:00', NULL,             NULL
+  UNION ALL SELECT 'ORD-SEED-07', '13900139002', '2026-06-12 13:00:00', '已发货', '微信',     '2026-06-12 13:05:00', NULL,             NULL
+  UNION ALL SELECT 'ORD-SEED-08', '13800138001', '2026-06-15 08:50:00', '待付款', NULL,       NULL,                  NULL,             NULL
+) o
+JOIN Customer c ON c.phone = o.phone
+WHERE NOT EXISTS (SELECT 1 FROM Sales_Order so WHERE so.order_no = o.order_no);
+
+-- 13.2 订单明细（unit_price 取 Product 当前价；按 order_id+product_id 防重）
+INSERT INTO Order_Detail (order_id, product_id, quantity, unit_price)
+SELECT so.order_id, p.product_id, d.quantity, p.price
+FROM (
+  SELECT 'ORD-SEED-01' AS order_no, 'Apple'        AS brand, 'MacBook Pro 14'             AS model, 1 AS quantity
+  UNION ALL SELECT 'ORD-SEED-01', 'Corsair',      'Vengeance DDR5 32GB',          2
+  UNION ALL SELECT 'ORD-SEED-02', 'Lenovo',       'ThinkPad X1 Carbon',           1
+  UNION ALL SELECT 'ORD-SEED-03', 'AMD',          'Ryzen 7 7800X3D',              1
+  UNION ALL SELECT 'ORD-SEED-03', 'NVIDIA',       'GeForce RTX 4070',             1
+  UNION ALL SELECT 'ORD-SEED-03', 'Samsung',      '990 PRO 2TB NVMe',             1
+  UNION ALL SELECT 'ORD-SEED-04', 'ASUS',         'ROG 魔霸7 Plus',               1
+  UNION ALL SELECT 'ORD-SEED-05', 'Lenovo',       '天逸510S',                     2
+  UNION ALL SELECT 'ORD-SEED-06', 'HP',           '暗影精灵8 台式',               1
+  UNION ALL SELECT 'ORD-SEED-06', 'Thermalright', 'Peerless Assassin 120 SE',     1
+  UNION ALL SELECT 'ORD-SEED-07', 'NVIDIA',       'GeForce RTX 4070',             2
+  UNION ALL SELECT 'ORD-SEED-08', 'Lenovo',       '小新 Pro 16 2026',             1
+  UNION ALL SELECT 'ORD-SEED-08', 'Corsair',      'Vengeance DDR5 6000 32GB',     1
+) d
+JOIN Sales_Order so ON so.order_no = d.order_no
+JOIN Product p      ON p.brand = d.brand AND p.model = d.model
+LEFT JOIN Order_Detail od ON od.order_id = so.order_id AND od.product_id = p.product_id
+WHERE od.detail_id IS NULL;
+
+-- 13.3 回填订单总金额 / 实付金额（幂等：基于真实明细聚合）
+UPDATE Sales_Order so
+JOIN (
+  SELECT order_id, SUM(quantity * unit_price) AS amt
+  FROM Order_Detail
+  GROUP BY order_id
+) t ON t.order_id = so.order_id
+SET so.total_amount = t.amt,
+    so.paid_amount  = CASE WHEN so.status IN ('已付款', '已发货', '已退货') THEN t.amt ELSE NULL END
+WHERE so.order_no LIKE 'ORD-SEED-%';
