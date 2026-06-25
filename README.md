@@ -2,6 +2,25 @@
 
 基于 Spring Boot + Vue 3 的电脑销售管理平台，支持笔记本、台式机整机、DIY 配件的销售与库存管理。
 
+## 前端展示
+
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/pictures/login.png" alt="登录页面" width="100%"><br>
+      <sub><b>登录页面</b>（客户 / 销售员双角色登录）</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/pictures/products.png" alt="商品列表" width="100%"><br>
+      <sub><b>商品列表</b>（搜索 / 分类筛选 / 下单）</sub>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/pictures/statistics.png" alt="数据统计" width="100%"><br>
+      <sub><b>数据统计</b>（订单 / 库存 / 销售额图表）</sub>
+    </td>
+  </tr>
+</table>
+
 ## 技术栈
 
 | 层级 | 技术 |
