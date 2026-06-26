@@ -12,30 +12,30 @@ import java.util.Map;
  */
 @Data
 public class ProductDetail {
-    private Integer productId;
-    private String brand;
-    private String model;
-    private BigDecimal price;
-    private Integer stock;
-    private String category;
+    private Integer productId; // 商品主键
+    private String brand; // 品牌
+    private String model; // 型号
+    private BigDecimal price; // 售价
+    private Integer stock; // 库存
+    private String category; // 分类
 
     // 笔记本详情
-    private String screenSize;
-    private String cpuModel;
-    private String gpuModel;
-    private String weight;
+    private String screenSize; // 屏幕尺寸
+    private String cpuModel; // CPU 型号
+    private String gpuModel; // GPU 型号
+    private String weight; // 重量
 
     // 台式机整机详情
-    private String formFactor;
-    private String cpuDesc;
-    private String gpuDesc;
-    private String ramDesc;
-    private String storageDesc;
+    private String formFactor; // 机箱规格
+    private String cpuDesc; // CPU 描述
+    private String gpuDesc; // GPU 描述
+    private String ramDesc; // 内存描述
+    private String storageDesc; // 存储描述
 
     // DIY配件详情
-    private String partType;
-    private String specification;
+    private String partType; // 配件类型
+    private String specification; // 规格参数
 
     // 台式机配件组成（仅台式机整机）
-    private List<Map<String, Object>> composition;
+    private List<Map<String, Object>> composition; // 配件组成列表
 }

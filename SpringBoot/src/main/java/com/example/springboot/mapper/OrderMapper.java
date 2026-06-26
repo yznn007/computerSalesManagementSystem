@@ -8,6 +8,11 @@ import org.apache.ibatis.mapping.StatementType;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 订单数据访问层。
+ * 写操作（下单、状态流转）走存储过程以保证事务与悲观锁防超卖；
+ * 读操作用注解 SQL 联表查询订单及明细。
+ */
 public interface OrderMapper {
 
     /**
@@ -36,6 +41,7 @@ public interface OrderMapper {
     @Options(statementType = StatementType.CALLABLE)
     void callUpdateStatus(Map<String, Object> params);
 
+    /** 动态查询订单列表：status 与 customerId 均可选；customerId 传入时即"只看自己的订单" */
     @Select("<script>" +
             "SELECT o.*, c.customer_name FROM Sales_Order o " +
             "JOIN Customer c ON o.customer_id = c.customer_id " +
@@ -47,11 +53,13 @@ public interface OrderMapper {
             "</script>")
     List<SalesOrder> findAll(@Param("status") String status, @Param("customerId") Integer customerId);
 
+    /** 按 id 查单条订单主信息（含客户名），用于详情与权限校验 */
     @Select("SELECT o.*, c.customer_name FROM Sales_Order o " +
             "JOIN Customer c ON o.customer_id = c.customer_id " +
             "WHERE o.order_id = #{id}")
     SalesOrder findById(@Param("id") Integer id);
 
+    /** 查订单明细列表，联表带出商品品牌/型号/分类用于前端展示 */
     @Select("SELECT od.*, p.brand, p.model, p.category FROM Order_Detail od " +
             "JOIN Product p ON od.product_id = p.product_id " +
             "WHERE od.order_id = #{orderId} ORDER BY od.detail_id")

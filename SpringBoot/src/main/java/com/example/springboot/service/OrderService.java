@@ -14,6 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 订单业务层。
+ * 下单与状态流转均委托数据库存储过程完成（事务 + 悲观锁防超卖、状态机校验、库存回补），
+ * 本类只负责参数装配、解析存储过程的 OUT 状态码并翻译为业务异常。
+ */
 @Service
 public class OrderService {
 
@@ -29,6 +34,7 @@ public class OrderService {
     public Map<String, Object> create(OrderCreateRequest req) {
         String itemsJson;
         try {
+            // 商品清单序列化为 JSON 数组字符串传给存储过程，形如 [{"product_id":1,"quantity":2}]
             itemsJson = objectMapper.writeValueAsString(req.getItems());
         } catch (Exception e) {
             throw new BizException("参数序列化失败");
@@ -37,11 +43,12 @@ public class OrderService {
         Map<String, Object> params = new HashMap<>();
         params.put("customerId", req.getCustomerId());
         params.put("items", itemsJson);
-        params.put("status", null);
-        params.put("orderNo", null);
+        params.put("status", null);   // OUT：存储过程返回的结果码
+        params.put("orderNo", null);  // OUT：成功时返回的订单号
 
         orderMapper.callCreateOrder(params);
 
+        // OUT 为空按系统异常(4)处理；非 0 状态码翻译成中文错误消息抛出
         int status = params.get("status") == null ? 4 : ((Number) params.get("status")).intValue();
         String orderNo = String.valueOf(params.get("orderNo"));
 
@@ -86,12 +93,13 @@ public class OrderService {
         return result;
     }
 
-    /** 状态流转 */
+    /** 状态流转（pay/ship/cancel/return），由存储过程内的状态机校验合法性并按需回补库存 */
     public void updateStatus(Integer id, StatusUpdateRequest req) {
         String action = req.getAction();
         if (!List.of("pay", "ship", "cancel", "return").contains(action)) {
             throw new BizException("操作类型必须为 pay/ship/cancel/return");
         }
+        // 付款必须带支付方式，取消必须带原因（前置校验，减少无效存储过程调用）
         if ("pay".equals(action) && (req.getPaymentMethod() == null || req.getPaymentMethod().isBlank())) {
             throw new BizException("付款需提供支付方式");
         }
@@ -104,19 +112,20 @@ public class OrderService {
         params.put("action", action);
         params.put("paymentMethod", req.getPaymentMethod());
         params.put("cancelReason", req.getCancelReason());
-        params.put("status", null);
-        params.put("message", null);
+        params.put("status", null);   // OUT：0成功/1非法流转/2订单不存在/3系统异常
+        params.put("message", null);  // OUT：失败时的中文提示
 
         orderMapper.callUpdateStatus(params);
 
         int status = params.get("status") == null ? 3 : ((Number) params.get("status")).intValue();
         if (status != 0) {
             String message = String.valueOf(params.get("message"));
-            int httpCode = status == 2 ? 404 : 400;
+            int httpCode = status == 2 ? 404 : 400; // 订单不存在映射 404，其余非法流转映射 400
             throw new BizException(httpCode, message);
         }
     }
 
+    /** 将 sp_create_order 的状态码翻译为中文错误消息（0 成功不在此处理） */
     private String mapCreateStatus(int status) {
         return switch (status) {
             case 1 -> "商品数量不合法";

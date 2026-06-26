@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * 销售看板统计接口（/api/stats），仅限销售员。
+ */
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
@@ -16,6 +19,7 @@ public class StatsController {
         this.statsService = statsService;
     }
 
+    /** 看板总览：客户/订单/销售额/商品四维统计（仅销售员） */
     @GetMapping("/overview")
     public Map<String, Object> overview() {
         AuthContext.requireStaff();

@@ -10,9 +10,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * 客户管理业务层（仅供销售员使用）。
+ * 提供客户增删改查；新增/改手机号时保证手机号唯一，删除时拦截外键约束给出友好提示。
+ */
 @Service
 public class CustomerService {
 
+    /** 销售员代建客户时的默认初始密码 */
     private static final String DEFAULT_PASSWORD = "123456";
 
     private final CustomerMapper customerMapper;
@@ -23,10 +28,12 @@ public class CustomerService {
         this.encoder = encoder;
     }
 
+    /** 客户列表 */
     public List<Customer> list() {
         return customerMapper.findAll();
     }
 
+    /** 按 id 查客户，不存在抛 404 */
     public Customer get(Integer id) {
         Customer c = customerMapper.findById(id);
         if (c == null) {
@@ -35,6 +42,7 @@ public class CustomerService {
         return c;
     }
 
+    /** 新建客户：手机号查重后插入，未指定密码用默认密码（BCrypt 加密存储） */
     public Customer create(CustomerUpsertRequest req) {
         if (customerMapper.findByPhone(req.getPhone()) != null) {
             throw new BizException("该手机号已存在");
@@ -50,6 +58,7 @@ public class CustomerService {
         return c;
     }
 
+    /** 更新客户资料（不改密码）；手机号变更时再次查重 */
     public Customer update(Integer id, CustomerUpsertRequest req) {
         Customer c = get(id);
         // 手机号变更需检查唯一
@@ -65,6 +74,7 @@ public class CustomerService {
         return c;
     }
 
+    /** 删除客户：存在关联订单（外键约束）时拦截并给出友好提示 */
     public void delete(Integer id) {
         get(id);
         try {

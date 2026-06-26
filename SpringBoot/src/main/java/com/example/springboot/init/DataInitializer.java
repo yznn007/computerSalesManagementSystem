@@ -12,6 +12,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * 启动数据初始化器（@Order(1) 最先执行，test 环境禁用）。
+ * 作用：将种子脚本里以 {@code __SEED_<明文>__} 形式写入的占位密码，启动时统一替换为
+ * BCrypt 哈希；并在 Staff 表为空时插入默认管理员 admin/admin（山田小姐）。
+ * 这样既能在 SQL 中保留可读的明文口令，又不会把明文密码落库。
+ */
 @Component
 @Order(1)
 @Profile("!test")

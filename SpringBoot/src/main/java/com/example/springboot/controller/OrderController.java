@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 订单接口（/api/orders）。
+ * 权限按角色区分：客户只能操作/查看自己的订单且不能代付以外越权；
+ * 销售员可查全部、可代客下单与发货/退货/取消，但不能代客户付款。
+ */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -22,6 +27,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    /** 下单：客户用 token 的 id（防伪造），销售员代客下单需在 body 指定 customer_id */
     @PostMapping
     public Map<String, Object> create(@Valid @RequestBody OrderCreateRequest req) {
         AuthContext.CurrentUser user = AuthContext.require();
@@ -38,6 +44,7 @@ public class OrderController {
         return orderService.create(req);
     }
 
+    /** 订单列表：销售员看全部，客户仅看自己的（均可按状态筛选） */
     @GetMapping
     public List<SalesOrder> list(@RequestParam(required = false) String status) {
         AuthContext.CurrentUser user = AuthContext.require();
@@ -48,6 +55,7 @@ public class OrderController {
         return orderService.listByCustomer(user.id().intValue(), status);
     }
 
+    /** 订单详情：客户访问他人订单时抛 403 */
     @GetMapping("/{id}")
     public Map<String, Object> detail(@PathVariable Integer id) {
         AuthContext.CurrentUser user = AuthContext.require();
@@ -61,6 +69,7 @@ public class OrderController {
         return result;
     }
 
+    /** 状态流转：销售员可 ship/return/cancel（不可 pay）；客户仅可对自己订单 pay/cancel */
     @PutMapping("/{id}/status")
     public void updateStatus(@PathVariable Integer id, @Valid @RequestBody StatusUpdateRequest req) {
         AuthContext.CurrentUser user = AuthContext.require();

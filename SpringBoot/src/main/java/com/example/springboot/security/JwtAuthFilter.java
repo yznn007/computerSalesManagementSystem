@@ -10,6 +10,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * JWT 认证过滤器。
+ * 每个请求执行一次：从 {@code Authorization: Bearer <token>} 解析出用户身份并写入
+ * {@link AuthContext}。本过滤器只负责"解析并存放"，不负责拦截——具体接口是否要求
+ * 登录/角色由控制器内的 {@code require()/requireStaff()} 决定。
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -24,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+            String token = header.substring(7); // 去掉 "Bearer " 前缀
             try {
                 Claims claims = jwtUtil.parse(token);
                 Long id = Long.valueOf(claims.getSubject());
@@ -38,7 +44,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(request, response);
         } finally {
-            AuthContext.clear();
+            AuthContext.clear(); // ⚠ 必须清理，防止线程池复用导致身份串号
         }
     }
 }
