@@ -59,7 +59,7 @@
 │       ├── api/index.js       #   Axios 封装：统一请求前缀 /api、自动携带 JWT token、401 自动跳转登录
 │       ├── router/index.js    #   路由配置：页面路径映射 + 全局守卫（未登录跳登录页、权限不足跳主页）
 │       ├── layout/            #   布局组件：MainLayout.vue 提供顶栏导航 + 用户下拉菜单（设置/登出）
-│       ├── views/             #   页面视图：Login、Dashboard（主页+购物车下单）、OrderList、ProductList、CustomerList
+│       ├── views/             #   页面视图：Login、Dashboard（主页+购物车下单）、OrderList、ProductList、CustomerList、SalesReport（销售统计看板）
 │       ├── components/        #   可复用组件目录（当前为空，可扩展）
 │       └── assets/            #   静态资源：main.css（暗色主题覆盖、CSS 变量）、reset.css（基础样式重置）
 │
