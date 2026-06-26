@@ -53,6 +53,9 @@ INSERT IGNORE INTO Product (brand, model, price, stock, category) VALUES
 ('Razer',  '灵刃 14',            17999.00,   5, '笔记本'),
 ('Razer',  '灵刃 16',            22999.00,   4, '笔记本');
 
+-- 详情子表幂等插入范式（本文件所有 *_Detail 插入均沿用此模式）：
+--   派生表(UNION ALL 字面值) 按 brand+model JOIN 回 Product 取出 product_id，
+--   再 LEFT JOIN 目标子表 + WHERE 子表主键 IS NULL，实现"不存在才插"，可重复执行
 INSERT INTO Laptop_Detail (product_id, screen_size, cpu_model, gpu_model, weight)
 SELECT p.product_id, d.screen_size, d.cpu_model, d.gpu_model, d.weight
 FROM Product p

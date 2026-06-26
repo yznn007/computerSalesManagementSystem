@@ -17,7 +17,7 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
                                     Product (1) ──→ (1) Laptop_Detail
                                     Product (1) ──→ (1) Desktop_Detail
                                     Product (1) ──→ (N) Spare_Part_Detail
-                              Desktop_Detail (1) ──→ (N) Desktop_Composition (N) ←── (1) Spare_Part_Detail
+                                    Product (1) ──→ (N) Desktop_Composition (N) ←── (1) Spare_Part_Detail
 ```
 
 ---
@@ -165,9 +165,8 @@ Customer (1) ──→ (N) Sales_Order (1) ──→ (N) Order_Detail (N) ←─
 | Product | Laptop_Detail | 1:1 | product_id (UNIQUE) | 一件笔记本商品对应一条配置记录 |
 | Product | Desktop_Detail | 1:1 | product_id (UNIQUE) | 一件台式机商品对应一条配置记录 |
 | Product | Spare_Part_Detail | 1:N | product_id | 一件 DIY 配件商品对应一条规格 |
-| Desktop_Detail | Desktop_Composition | 1:N | product_id | 一台台式机对应多条组装配置 |
 | Desktop_Composition | Spare_Part_Detail | N:1 | part_id | 多条配置可引用同一配件 |
-| Product | Desktop_Composition | 1:N | product_id | 一件商品可作为台式机参与组装 |
+| Product | Desktop_Composition | 1:N | product_id | 台式机整机(Product)由多条配置(BOM)组成 |
 | Spare_Part_Detail | Desktop_Composition | 1:N | part_id | 一个配件可被多台台式机使用 |
 
 ---
@@ -286,14 +285,19 @@ CALL sp_update_order_status(
 
 ## 8. 测试数据
 
-测试种子数据（`sql/05_test_data.sql`）包含：
+测试种子数据见 `sql/05_test_data.sql`，**纯追加幂等**设计（依赖 `Product` 的 `UNIQUE(brand, model)` 与各表防重条件），重复执行不会产生重复数据，也不会清空已有客户/订单。密码统一用 `__SEED_<明文>__` 占位符，由后端 `DataInitializer` 启动时替换为 BCrypt 哈希。
 
-- **客户账号**：多个客户（含北京、上海等地收货地址），密码使用 `__SEED_<明文>__` 占位符
-- **商品**：覆盖笔记本、台式机整机、DIY 配件三大品类
-- **组装配置**：台式机整机关联 DIY 配件的组装关系
-- **销售员账号**：含默认 `admin`/`admin`（山田小姐）
+| 类别 | 数量 | 说明 |
+|------|:----:|------|
+| 客户账号 | 7 | 含北京/上海/广州等地收货地址；如 `13800138001`/`123456` |
+| 销售员账号 | 3 | `admin`（山田小姐）、`liwei`（李维）、`zhangmin`（张敏） |
+| 笔记本 | 15 | Lenovo / Apple / ASUS / Dell / ROG / 雷蛇 等 |
+| 台式机整机 | 6 | 含组装配置（BOM） |
+| DIY 配件 | 122 | CPU 20 / 显卡 21 / 主板 20 / 内存 15 / 硬盘 17 / 电源 10 / 机箱 8 / 散热器 11 |
+| 组装配置 | 11 | 3 台台式机整机关联 CPU/显卡/内存/硬盘等配件 |
+| 订单 | 8 | 覆盖全部 5 种状态（待付款/已付款/已发货/已取消/已退货），含 13 条明细 |
 
-具体数量以 `sql/05_test_data.sql` 当前内容为准。
+> 商品合计 143 件。订单种子用固定 `order_no`（`ORD-SEED-NN`）配合 `NOT EXISTS` 防重，总金额由真实明细 `SUM` 回填，演示订单关系时不扣减库存。具体内容以 `sql/05_test_data.sql` 当前版本为准。
 
 ---
 

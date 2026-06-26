@@ -1,3 +1,15 @@
+-- ============================================================
+-- 01 建库 + 建表（电脑销售管理系统，9 张表，满足 3NF）
+-- 执行顺序：本脚本须最先执行（后续 02~05 依赖这里的库与表）
+-- 设计要点：
+--   1) 商品采用"主表 Product + 子类型详情表"垂直拆分：
+--      Laptop_Detail / Desktop_Detail 与 Product 一对一；
+--      Spare_Part_Detail（DIY 配件）与 Product 一对多从属
+--   2) Desktop_Composition 记录台式机整机由哪些配件(part)组成（BOM）
+--   3) 订单主从：Sales_Order(主) ─1:N─ Order_Detail(明细，存下单时单价快照)
+--   4) 所有表含 created_at / updated_at 审计字段；金额用 DECIMAL(10,2) 防精度丢失
+--   5) 字符集 utf8mb4 + InnoDB，支持中文与事务/外键
+-- ============================================================
 DROP DATABASE IF EXISTS computer_sales_db;
 
 CREATE DATABASE computer_sales_db
