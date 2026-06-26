@@ -74,7 +74,9 @@
 │   ├── database.md            #   数据库设计文档（表结构、关系、索引、存储过程详解）
 │   ├── backend.md             #   后端技术文档（项目结构、API 接口清单、鉴权流程、业务规则）
 │   ├── frontend.md            #   前端技术文档（路由守卫、HTTP 层封装、页面组件说明、样式体系）
-│   └── defense-guide.md       #   答辩指南（系统概述、业务流程、架构设计思路，适合答辩参考）★
+│   ├── sql-test.md            #   SQL 直连测试手册（不依赖前后端，纯 mysql 客户端验证库/约束/存储过程/锁/索引）
+│   ├── defense-guide.md       #   答辩指南（系统概述、业务流程、架构设计思路，适合答辩参考）★
+│   └── CourseDesignReport/    #   数据库课程设计报告（Markdown 正文 + ER 图源文件归档）
 │
 ├── er-diagram.drawio          # E-R 图源文件（可用 draw.io 打开编辑）
 ├── er-diagram.png             # E-R 图预览（答辩时可放入 PPT）
@@ -127,4 +129,5 @@ npm run dev
 - [数据库技术文档](docs/database.md)
 - [后端技术文档](docs/backend.md)
 - [前端技术文档](docs/frontend.md)
+- [SQL 直连测试手册](docs/sql-test.md) — 纯 `mysql` 客户端逐条验证数据库功能
 - [答辩指南](docs/defense-guide.md) ★ 推荐阅读，用通俗语言讲解系统全貌
